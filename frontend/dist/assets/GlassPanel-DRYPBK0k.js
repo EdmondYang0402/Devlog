@@ -1,0 +1,1 @@
+import{o as s,Q as t,R as l,r as n,n as o,U as r}from"./index-CXTtU1Wi.js";const p={__name:"GlassPanel",props:{tag:{type:String,default:"section"},reading:{type:Boolean,default:!1}},setup(a){return(e,c)=>(s(),t(r(a.tag),{class:o(["glass-panel",{"glass-panel--reading":a.reading}])},{default:l(()=>[n(e.$slots,"default")]),_:3},8,["class"]))}};export{p as _};

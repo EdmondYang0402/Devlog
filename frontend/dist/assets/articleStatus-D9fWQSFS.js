@@ -1,0 +1,1 @@
+const e=Object.freeze({DRAFT:0,PUBLISHED:1}),a=Object.freeze([{label:"草稿",value:e.DRAFT},{label:"已发布",value:e.PUBLISHED}]);function r(t){return Number(t)===e.PUBLISHED?"已发布":"草稿"}function l(t){return Number(t)===e.PUBLISHED}export{a as A,e as a,r as g,l as i};

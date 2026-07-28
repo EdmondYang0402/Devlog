@@ -1,0 +1,117 @@
+name: devlog
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-8088}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - devlog
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - "8080"
+    environment:
+      TZ: Asia/Shanghai
+      SPRING_PROFILES_ACTIVE: "${SPRING_PROFILES_ACTIVE:-prod}"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-devlog}?useUnicode=true&characterEncoding=utf8&connectionCollation=utf8mb4_unicode_ci&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false"
+      SPRING_DATASOURCE_USERNAME: "${MYSQL_USER:-devlog_user}"
+      SPRING_DATASOURCE_PASSWORD: "${MYSQL_PASSWORD:?请在 .env 中设置 MYSQL_PASSWORD}"
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: "6379"
+      SPRING_DATA_REDIS_PASSWORD: "${REDIS_PASSWORD:-}"
+      JWT_SECRET: "${JWT_SECRET:?请在 .env 中设置至少 32 字节的 JWT_SECRET}"
+      JAVA_OPTS: "${JAVA_OPTS:--Xms256m -Xmx768m}"
+      CORS_ALLOWED_ORIGIN_PATTERNS: "${CORS_ALLOWED_ORIGIN_PATTERNS:-http://localhost:5173,http://localhost:8088,https://*.trycloudflare.com}"
+      APP_UPLOAD_DIR: /app/uploads
+      APP_UPLOAD_PUBLIC_URL_PREFIX: /uploads
+    volumes:
+      - upload_data:/app/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - devlog
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/8080'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?请在 .env 中设置 MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE:-devlog}"
+      MYSQL_USER: "${MYSQL_USER:-devlog_user}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:?请在 .env 中设置 MYSQL_PASSWORD}"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=+08:00
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init/00-core-schema.sql:/docker-entrypoint-initdb.d/00-core-schema.sql:ro
+      - ./database/tag_module.sql:/docker-entrypoint-initdb.d/10-tag-module.sql:ro
+      - ./database/project_showcase.sql:/docker-entrypoint-initdb.d/20-project-showcase.sql:ro
+      - ./database/media_review.sql:/docker-entrypoint-initdb.d/30-media-review.sql:ro
+      - ./database/site_config.sql:/docker-entrypoint-initdb.d/40-site-config.sql:ro
+      - ./database/site_background.sql:/docker-entrypoint-initdb.d/50-site-background.sql:ro
+      - ./database/notes_category.sql:/docker-entrypoint-initdb.d/60-notes-category.sql:ro
+    restart: unless-stopped
+    networks:
+      - devlog
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    environment:
+      REDIS_PASSWORD: "${REDIS_PASSWORD:-}"
+    command:
+      - sh
+      - -c
+      - exec redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - devlog
+    healthcheck:
+      test: ["CMD-SHELL", "if [ -n \"$$REDIS_PASSWORD\" ]; then redis-cli --no-auth-warning -a \"$$REDIS_PASSWORD\" ping; else redis-cli ping; fi | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+networks:
+  devlog:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  redis_data:
+  upload_data:

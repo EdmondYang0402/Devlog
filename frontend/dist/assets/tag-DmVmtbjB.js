@@ -1,0 +1,1 @@
+import{cW as t}from"./index-CXTtU1Wi.js";const e=()=>t.get("/admin/tags"),n=()=>t.get("/admin/tags/options"),o=()=>t.get("/tags"),d=a=>t.post("/admin/tags",a),i=(a,s)=>t.put(`/admin/tags/${a}`,s),c=a=>t.delete(`/admin/tags/${a}`);export{n as a,e as b,d as c,c as d,o as g,i as u};

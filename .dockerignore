@@ -1,0 +1,14 @@
+target
+frontend
+database
+.git
+.agents
+.codex
+.idea
+.vscode
+Test
+*.iml
+*.log
+.env
+DEPLOY.md
+DevLog_代码优化修改摘要.txt

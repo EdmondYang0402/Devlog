@@ -1,0 +1,14 @@
+.markdown-body .font-size-12 { font-size: 12px; }
+.markdown-body .font-size-14 { font-size: 14px; }
+.markdown-body .font-size-16 { font-size: 16px; }
+.markdown-body .font-size-18 { font-size: 18px; }
+.markdown-body .font-size-20 { font-size: 20px; }
+.markdown-body .font-size-24 { font-size: 24px; }
+.markdown-body .font-size-28 { font-size: 28px; }
+.markdown-body .font-size-32 { font-size: 32px; }
+
+.markdown-body .font-family-mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+.markdown-body .font-family-sans { font-family: 'Noto Sans SC', -apple-system, sans-serif; }
+.markdown-body .font-family-serif { font-family: 'Noto Serif SC', 'Songti SC', SimSun, serif; }
+.markdown-body .font-family-heiti { font-family: 'Microsoft YaHei', 'Heiti SC', sans-serif; }
+.markdown-body .font-family-kaiti { font-family: KaiTi, 'STKaiti', serif; }

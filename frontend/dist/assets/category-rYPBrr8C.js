@@ -1,0 +1,1 @@
+import{cW as e}from"./index-CXTtU1Wi.js";function n(){return e.get("/admin/category")}function o(){return e.get("/category")}function g(t){return e.post("/admin/category",t)}function u(t,r){return e.put(`/admin/category/${t}`,r)}function c(t){return e.delete(`/admin/category/${t}`)}export{n as a,g as c,c as d,o as g,u};

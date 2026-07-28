@@ -1,0 +1,116 @@
+DevLog 项目代码优化修改摘要
+生成日期：2026-07-13
+
+一、项目恢复情况
+
+1. 检查项目时发现 .git 目录为空或不完整，Git 无法识别当前目录为仓库，因此无法通过 git diff 或提交历史恢复上次进度。
+2. 根据源码修改时间确认，上一次工作中断在用户模块重构阶段。
+3. 中断时 UserService 接口已经修改，但 UserServiceImpl 仍保留旧返回类型、重复方法和多个空实现，前端也存在接口导出缺失。
+
+二、后端用户模块修改
+
+涉及文件：
+- src/main/java/com/myproject/devlog/controller/UserController.java
+- src/main/java/com/myproject/devlog/service/UserService.java
+- src/main/java/com/myproject/devlog/service/impl/UserServiceImpl.java
+- src/main/java/com/myproject/devlog/utils/UserConverter.java
+- src/main/java/com/myproject/devlog/pojo/vo/UserInfoVO.java
+- src/main/java/com/myproject/devlog/mapper/UserMapper.java
+
+修改内容：
+
+1. 将 UserServiceImpl 的字段注入改成构造器注入，依赖字段改为 private final。
+2. 删除重复且命名不规范的 Register() 方法，将注册逻辑合并到 register()。
+3. register() 现在负责构造用户、BCrypt 加密密码、设置默认角色与状态并写入数据库。
+4. 将 getInfo() 的返回类型与 UserService 接口统一为 UserInfoVO，Result 包装只保留在 Controller 层。
+5. UserConverter 方法统一为小驼峰命名：toUserInfoVO()、toUser()。
+6. updateProfile() 简化为转换 DTO 后调用 Mapper 更新。
+7. 修复修改密码逻辑：校验旧密码后，对新密码进行 BCrypt 加密，并携带当前用户 ID 更新数据库。
+8. getByUsername()、getById() 不再返回 null，改为调用 UserMapper。
+9. updateStatus() 不再是空实现，改为按用户 ID 更新状态。
+10. 清理 logout() 中过时的步骤编号和占位注释，统一缩进。
+11. UserInfoVO 增加 email 字段，使个人资料接口能够返回邮箱。
+12. UserInfoVO 移除 Lombok 通配符导入，改用明确导入。
+13. 删除 UserMapper 中没有实际 SQL 的 Info() 空方法。
+14. 对单行 if 补充花括号，并统一空格、空行和方法命名风格。
+
+三、后端文章模块修改
+
+涉及文件：
+- src/main/java/com/myproject/devlog/controller/ArticleController.java
+- src/main/java/com/myproject/devlog/controller/AdminArticleController.java
+- src/main/java/com/myproject/devlog/service/impl/ArticleServiceImpl.java
+- src/main/java/com/myproject/devlog/service/impl/AdminArticleServiceImpl.java
+- src/main/java/com/myproject/devlog/utils/ArticleConverter.java
+
+修改内容：
+
+1. ArticleController、AdminArticleController 改为构造器注入，并将依赖字段设为 private final。
+2. 移除 Spring Web 通配符导入和未使用的 DTO、Controller 等导入。
+3. 简化控制器分页接口，直接包装 Service 返回值，删除冗余局部变量。
+4. ArticleServiceImpl 改为构造器注入并清理大量未使用导入。
+5. 补全 increaseViewCount() 空实现，调用 articleMapper.updateViewCount(id)。
+6. 统一 PageResult 构造参数之间的空格。
+7. AdminArticleServiceImpl 改为构造器注入。
+8. 删除 AdminArticleServiceImpl 中的 System.out.println 调试输出。
+9. 统一权限检查方法参数之间的空格。
+10. ArticleConverter 增加私有构造器，防止工具类被实例化。
+11. ArticleConverter 方法重命名：
+    - CreateDTO_ToEntity() -> fromCreateDTO()
+    - EntityToDetailVO() -> toDetailVO()
+    - ArticleUpdateDTOTOEntity() -> fromUpdateDTO()
+12. 转换方法增加 null 判断，并把局部变量 VO 改成符合 Java 规范的 vo。
+13. 删除转换器中解释显而易见代码的编号注释。
+
+四、拦截器配置修改
+
+涉及文件：
+- src/main/java/com/myproject/devlog/interceptor/WebMvcConfig.java
+
+修改内容：
+
+1. JwtInterceptor 改为构造器注入，字段设为 private final。
+2. 调整公开接口白名单的格式和缩进。
+3. 删除已经不存在的 /user/updatePwd 白名单。
+4. 将文章接口白名单改成与实际路由一致的路径：/article/*、/article/list、/article/*/view。
+
+五、前端用户模块修改
+
+涉及文件：
+- frontend/src/api/user.js
+- frontend/src/views/UserProfile.vue
+- frontend/src/views/UserResetPassword.vue
+
+修改内容：
+
+1. 修复 UserProfile.vue 导入了不存在的 userInfoUpdateService，统一改为 userUpdateProfileService。
+2. userInfoService() 改为请求 /user/me，避免无参数调用时生成 /user/info/undefined。
+3. 新增 userUpdatePasswordService()，统一请求 PATCH /user/password。
+4. 个人资料页面字段与后端 DTO/VO 对齐：
+    - userPic -> avatar
+    - introduction -> bio
+    - 移除后端不存在的 nickname 字段和表单项
+5. 密码修改页面字段由下划线命名改成与后端 DTO 一致的驼峰命名：
+    - old_pwd -> oldPassword
+    - new_pwd -> newPassword
+    - re_pwd -> repeatedPassword
+6. 密码页面不再直接调用 request，而是通过 user.js 中统一封装的 API 方法调用。
+7. 调整部分 Vue 属性顺序，使 v-if 等结构指令更易读。
+
+六、验证结果
+
+1. 后端执行 .\mvnw.cmd test 成功。
+2. Java 编译通过，共编译 47 个主源码文件。
+3. 后端测试结果：Tests run: 2, Failures: 0, Errors: 0, Skipped: 0。
+4. 前端执行 npm.cmd run build 成功，共转换 1696 个模块。
+5. 静态扫描确认主业务代码中已没有 @Autowired 或 @Resource 字段注入。
+6. 静态扫描确认旧转换器方法名、旧密码字段名、错误的前端 API 导入和 System.out 调试输出均已清除。
+
+七、尚未处理或需要注意的地方
+
+1. .git 目录目前不可用，无法生成可靠的 git diff，也无法确认这些修改与更早版本的精确差异。
+2. ArticleMapper 和 CommentMapper 仍使用 MyBatis 注解通配符导入，可以在后续风格整理中继续拆分。
+3. Vite 构建成功，但提示主包超过 500 kB，后续可以通过动态导入或 manualChunks 做代码分包。
+4. Vite 还提示 CJS Node API 已弃用，后续可考虑把 vite.config.js 迁移为 ESM 配置。
+5. Maven 测试有 Mockito 动态加载 Java Agent 的未来兼容性警告，目前不影响测试通过。
+6. 本轮主要目标是恢复中断的重构、统一代码风格并确保两端可以构建；尚未进行完整的接口联调和浏览器端人工回归测试。

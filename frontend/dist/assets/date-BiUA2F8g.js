@@ -1,0 +1,1 @@
+const r=(t,i="zh-CN")=>{if(!t)return"--";const e=new Date(t);return Number.isNaN(e.getTime())?"--":new Intl.DateTimeFormat(i,{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).format(e)};export{r as f};
