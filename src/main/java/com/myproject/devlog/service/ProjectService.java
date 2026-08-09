@@ -16,13 +16,13 @@ public interface ProjectService {
 
     void delete(Long id);
 
-    ProjectDetailVO getAdminDetail(Long id);
+    ProjectDetailVO getAdminById(Long id);
 
-    PageResult<ProjectListVO> adminPage(ProjectPageQueryDTO query);
+    PageResult<ProjectListVO> pageAdmin(ProjectPageQueryDTO query);
 
-    ProjectDetailVO getFrontDetail(Long id);
+    ProjectDetailVO getById(Long id);
 
-    PageResult<ProjectListVO> frontPage(ProjectPageQueryDTO query);
+    PageResult<ProjectListVO> page(ProjectPageQueryDTO query);
 
-    List<ProjectListVO> getFeaturedProjects(Integer limit);
+    List<ProjectListVO> listFeatured(Integer limit);
 }

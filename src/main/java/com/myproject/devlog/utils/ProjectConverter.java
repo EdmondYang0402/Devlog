@@ -3,7 +3,6 @@ package com.myproject.devlog.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.myproject.devlog.common.BusinessException;
 import com.myproject.devlog.pojo.dto.ProjectCreateDTO;
 import com.myproject.devlog.pojo.dto.ProjectUpdateDTO;
 import com.myproject.devlog.pojo.entity.ProjectShowcase;
@@ -74,7 +73,6 @@ public class ProjectConverter {
                                     String coverUrl, List<String> techStack, String githubUrl, String demoUrl,
                                     Integer status, LocalDate startedDate, LocalDate completedDate,
                                     Integer featured, Integer sortOrder) {
-        projectValidator.validateStatus(status);
         projectValidator.validateDates(startedDate, completedDate);
         entity.setName(projectValidator.normalizeName(name));
         entity.setSummary(projectValidator.normalizeSummary(summary));
@@ -116,7 +114,7 @@ public class ProjectConverter {
             projectValidator.validateSerializedTechStack(json);
             return json;
         } catch (JsonProcessingException exception) {
-            throw new BusinessException("技术栈数据序列化失败");
+            throw new IllegalStateException("技术栈数据序列化失败", exception);
         }
     }
 
@@ -128,7 +126,7 @@ public class ProjectConverter {
             List<String> values = objectMapper.readValue(techStackJson, STRING_LIST_TYPE);
             return projectValidator.normalizeTechStack(values);
         } catch (JsonProcessingException exception) {
-            throw new BusinessException("技术栈数据解析失败");
+            throw new IllegalStateException("技术栈数据解析失败", exception);
         }
     }
 }

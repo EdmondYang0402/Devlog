@@ -1,97 +1,109 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import AdminSidebar from '@/components/admin/AdminSidebar.vue'
+import AdminHeader from '@/components/admin/AdminHeader.vue'
+import '@/assets/css/admin-theme.css'
 
 const route = useRoute()
 const { t } = useI18n()
-const currentTitle = computed(() => route.meta.titleKey ? t(route.meta.titleKey) : route.meta.title)
+const collapsed = ref(localStorage.getItem('admin-sidebar-collapsed') === 'true')
+const mobileOpen = ref(false)
+const currentTitle = computed(() => route.meta.titleKey ? t(route.meta.titleKey) : route.meta.title || '后台管理')
 
-const navItems = computed(() => [
-    {
-        group: '内容',
-        items: [
-            { label: '文章列表', icon: 'ti-article', to: '/admin/articles' },
-            { label: '发布文章', icon: 'ti-pencil', to: '/admin/articles/create' },
-            { label: '评论管理', icon: 'ti-message', to: '/admin/comments' },
-            { label: '分类管理', icon: 'ti-folder', to: '/admin/categories' },
-            { label: t('adminTag.menu'), icon: 'ti-tag', to: '/admin/tags' },
-            { label: t('media.admin.menu'), icon: 'ti-books', to: '/admin/media-reviews' },
-        ]
-    },
-    {
-        group: '系统',
-        items: [
-            { label: '黑名单', icon: 'ti-ban', to: '/admin/blacklist' },
-            { label: '个人资料', icon: 'ti-user', to: '/admin/profile' },
-            { label: t('siteBackground.menu'), icon: 'ti-photo-cog', to: '/admin/site-backgrounds' },
-        ]
-    }
-])
+const toggleSidebar = () => {
+  if (window.matchMedia('(max-width: 900px)').matches) {
+    mobileOpen.value = !mobileOpen.value
+    return
+  }
+  collapsed.value = !collapsed.value
+  localStorage.setItem('admin-sidebar-collapsed', String(collapsed.value))
+}
 
-const isActive = (to) => route.path === to || route.path.startsWith(to + '/')
+onMounted(() => document.body.classList.add('admin-mode'))
+onUnmounted(() => document.body.classList.remove('admin-mode'))
 </script>
 
 <template>
-    <div class="admin-layout">
-        <aside class="sidebar">
-            <div class="sidebar-logo">
-                <span class="logo-text">✦ 后台管理</span>
-            </div>
-            <nav class="sidebar-nav">
-                <template v-for="group in navItems" :key="group.group">
-                    <div class="nav-group-label">{{ group.group }}</div>
-                    <router-link
-                        v-for="item in group.items"
-                        :key="item.to"
-                        :to="item.to"
-                        :class="['nav-item', { active: isActive(item.to) }]"
-                    >
-                        <i :class="['ti', item.icon]" aria-hidden="true"></i>
-                        {{ item.label }}
-                    </router-link>
-                </template>
-            </nav>
-            <div class="sidebar-footer">
-                <router-link to="/home" class="back-link">
-                    <i class="ti ti-arrow-left" aria-hidden="true"></i>返回前台
-                </router-link>
-            </div>
-        </aside>
-
-        <div class="main">
-            <header class="topbar">
-                <div class="breadcrumb">
-                    <span class="bc-root">后台管理</span>
-                    <span class="bc-sep">/</span>
-                    <span class="bc-current">{{ currentTitle }}</span>
-                </div>
-            </header>
-            <div class="content">
-                <router-view />
-            </div>
-        </div>
+  <div class="admin-shell">
+    <div class="admin-backdrop" aria-hidden="true"></div>
+    <AdminSidebar
+      :collapsed="collapsed"
+      :mobile-open="mobileOpen"
+      @close-mobile="mobileOpen = false"
+    />
+    <div class="admin-main">
+      <AdminHeader :title="currentTitle" @toggle-sidebar="toggleSidebar" />
+      <main class="content">
+        <router-view v-slot="{ Component, route: currentRoute }">
+          <Transition name="admin-page" mode="out-in">
+            <component :is="Component" :key="currentRoute.fullPath" />
+          </Transition>
+        </router-view>
+      </main>
     </div>
+  </div>
 </template>
 
 <style scoped>
-.admin-layout { display:flex; height:100vh; overflow:hidden; background:var(--surface-0,#f5f4fd); }
-.sidebar { width:168px; flex-shrink:0; background:#1a1a2e; display:flex; flex-direction:column; }
-.sidebar-logo { padding:1rem; border-bottom:0.5px solid rgba(255,255,255,.08); }
-.logo-text { font-size:14px; font-weight:500; color:#AFA9EC; letter-spacing:.02em; }
-.sidebar-nav { flex:1; overflow-y:auto; padding:0.5rem 0; }
-.nav-group-label { padding:8px 12px 4px; font-size:10px; color:rgba(255,255,255,.3); text-transform:uppercase; letter-spacing:.08em; margin-top:8px; }
-.nav-item { display:flex; align-items:center; gap:8px; padding:8px 12px; font-size:12px; color:rgba(255,255,255,.5); text-decoration:none; transition:all .15s; border-left:2px solid transparent; }
-.nav-item:hover { color:rgba(255,255,255,.85); background:rgba(255,255,255,.04); }
-.nav-item.active { color:#AFA9EC; background:rgba(175,169,236,.12); border-left-color:#AFA9EC; }
-.nav-item .ti { font-size:15px; }
-.sidebar-footer { padding:10px 12px; border-top:0.5px solid rgba(255,255,255,.08); }
-.back-link { display:flex; align-items:center; gap:6px; font-size:11px; color:rgba(255,255,255,.35); text-decoration:none; transition:color .15s; }
-.back-link:hover { color:rgba(255,255,255,.7); }
-.main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
-.topbar { height:44px; background:var(--surface-2,#fff); border-bottom:0.5px solid var(--border,#eee); display:flex; align-items:center; padding:0 1.2rem; flex-shrink:0; }
-.breadcrumb { display:flex; align-items:center; gap:6px; font-size:12px; }
-.bc-root, .bc-sep { color:var(--text-muted,#aaa); }
-.bc-current { color:var(--text-primary,#222); font-weight:500; }
-.content { flex:1; overflow-y:auto; padding:1.2rem; }
+.admin-shell {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  gap: 14px;
+  overflow: hidden;
+  padding: 12px;
+  background: var(--admin-bg);
+}
+.admin-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    var(--admin-backdrop-overlay),
+    radial-gradient(circle at 77% 14%, rgba(149, 112, 177, .11), transparent 40%),
+    url('/images/background.jpg') center / cover no-repeat;
+  filter: saturate(.78) brightness(.8);
+  transform: scale(1.02);
+}
+.admin-main { position: relative; z-index: 1; min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+.content { min-width: 0; flex: 1; overflow: hidden auto; padding: 0 1px 1px; scrollbar-color: rgba(170, 148, 237, .34) transparent; }
+
+:global(.admin-page-enter-active),
+:global(.admin-page-leave-active) {
+  transition: opacity 240ms ease, transform 240ms ease;
+}
+
+:global(.admin-page-enter-from) {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+:global(.admin-page-leave-to) {
+  opacity: 0;
+  transform: translateY(-2px);
+}
+
+:global(.admin-page-enter-to),
+:global(.admin-page-leave-from) {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(.admin-page-enter-active),
+  :global(.admin-page-leave-active) {
+    transition: none;
+  }
+
+  :global(.admin-page-enter-from),
+  :global(.admin-page-leave-to) {
+    transform: none;
+  }
+}
+
+@media (max-width: 900px) { .admin-shell { gap: 0; } }
+@media (max-width: 720px) { .admin-shell { padding: 8px; } }
 </style>

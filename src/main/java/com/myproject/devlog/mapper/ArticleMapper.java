@@ -20,7 +20,7 @@ public interface ArticleMapper {
         VALUES (#{title}, #{summary}, #{content}, #{coverImage}, #{authorId}, #{categoryId}, #{status})
     """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
-    void insert(Article article);
+    int insert(Article article);
 
     @Update("""
         UPDATE article
@@ -32,10 +32,10 @@ public interface ArticleMapper {
             status = #{status}
         WHERE id = #{id}
     """)
-    void update(Article article);
+    int updateById(Article article);
 
     @Delete("DELETE FROM article WHERE id = #{id}")
-    void deleteById(Long id);
+    int deleteById(Long id);
 
     @Select("SELECT * FROM article WHERE id = #{id}")
     Article selectById(Long id);
@@ -62,7 +62,7 @@ public interface ArticleMapper {
         LIMIT #{offset}, #{size}
         </script>
     """)
-    List<ArticleListVO> adminPage(
+    List<ArticleListVO> selectAdminPage(
             @Param("offset") Integer offset,
             @Param("size") Integer size,
             @Param("title") String title,
@@ -113,7 +113,7 @@ public interface ArticleMapper {
         LIMIT #{offset}, #{size}
         </script>
     """)
-    List<ArticleListVO> frontPage(
+    List<ArticleListVO> selectFrontPage(
             @Param("offset") Integer offset,
             @Param("size") Integer size,
             @Param("categoryId") Long categoryId,
@@ -202,7 +202,7 @@ public interface ArticleMapper {
         LIMIT #{offset}, #{size}
         </script>
     """)
-    List<ArticleListVO> frontPageByTagIds(
+    List<ArticleListVO> selectFrontPageByTagIds(
             @Param("offset") Integer offset,
             @Param("size") Integer size,
             @Param("categoryId") Long categoryId,
@@ -269,7 +269,7 @@ public interface ArticleMapper {
         </if>
         </script>
     """)
-    Long adminCount(
+    Long countAdmin(
             @Param("title") String title,
             @Param("status") Integer status
     );

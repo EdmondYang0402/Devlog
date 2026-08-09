@@ -9,5 +9,5 @@ public interface CategoryService {
     void create(CategoryCreateDTO dto);
     void update(Long id, CategoryUpdateDTO dto);
     void delete(Long id);
-    List<CategoryVO> listAll();
+    List<CategoryVO> list();
 }

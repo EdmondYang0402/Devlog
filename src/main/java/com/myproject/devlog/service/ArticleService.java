@@ -2,7 +2,6 @@ package com.myproject.devlog.service;
 
 import com.myproject.devlog.common.PageResult;
 import com.myproject.devlog.pojo.dto.ArticleCreateDTO;
-import com.myproject.devlog.pojo.dto.ArticleQueryDTO;
 import com.myproject.devlog.pojo.dto.ArticleUpdateDTO;
 import com.myproject.devlog.pojo.vo.ArticleDetailVO;
 import com.myproject.devlog.pojo.vo.ArticleListVO;
@@ -23,6 +22,6 @@ public interface ArticleService {
 
     void increaseViewCount(Long id);
 
-    PageResult<ArticleListVO> getFrontList(Integer page, Integer size, Long categoryId,
+    PageResult<ArticleListVO> page(Integer page, Integer size, Long categoryId,
                                            String categorySlug, String keyword, List<Long> tagIds);
 }

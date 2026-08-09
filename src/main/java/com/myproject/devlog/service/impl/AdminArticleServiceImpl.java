@@ -1,6 +1,7 @@
 package com.myproject.devlog.service.impl;
 
 import com.myproject.devlog.common.PageResult;
+import com.myproject.devlog.common.BusinessException;
 import com.myproject.devlog.common.UserContext;
 import com.myproject.devlog.mapper.ArticleMapper;
 import com.myproject.devlog.mapper.CommentMapper;
@@ -16,6 +17,7 @@ import com.myproject.devlog.service.AdminArticleService;
 import com.myproject.devlog.service.ArticleTagService;
 import com.myproject.devlog.utils.PermissionUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -44,12 +46,13 @@ public class AdminArticleServiceImpl implements AdminArticleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void create(ArticleCreateDTO dto) {
-        validateStatus(dto.getStatus());
-        Long currentUserId = UserContext.get();
-        User user = userMapper.getById(currentUserId);
+        Long currentUserId = requireCurrentUserId();
+        User user = userMapper.selectById(currentUserId);
         Article article = fromCreateDTO(dto, currentUserId);
         PermissionUtil.checkUser(user);
-        articleMapper.insert(article);
+        if (articleMapper.insert(article) != 1 || article.getId() == null) {
+            throw new IllegalStateException("文章创建未返回预期写入结果");
+        }
         articleTagService.replaceArticleTags(article.getId(), dto.getTagIds());
     }
 
@@ -57,23 +60,24 @@ public class AdminArticleServiceImpl implements AdminArticleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void update(ArticleUpdateDTO dto) {
-        validateStatus(dto.getStatus());
-        Long currentUserId = UserContext.get();
-        User user = userMapper.getById(currentUserId);
+        Long currentUserId = requireCurrentUserId();
+        User user = userMapper.selectById(currentUserId);
         Article article = articleMapper.selectById(dto.getId());
         PermissionUtil.checkArticlePermission(user, article, currentUserId);
         Article updatedArticle = fromUpdateDTO(dto);
         if (updatedArticle.getStatus() == null) {
             updatedArticle.setStatus(article.getStatus());
         }
-        articleMapper.update(updatedArticle);
+        if (articleMapper.updateById(updatedArticle) != 1) {
+            throw new IllegalStateException("文章更新未影响预期记录数");
+        }
         articleTagService.replaceArticleTags(dto.getId(), dto.getTagIds());
     }
 
     @Override
-    public ArticleDetailVO getDetail(Long id) {
-        Long currentUserId = UserContext.get();
-        User user = userMapper.getById(currentUserId);
+    public ArticleDetailVO getById(Long id) {
+        Long currentUserId = requireCurrentUserId();
+        User user = userMapper.selectById(currentUserId);
         Article article = articleMapper.selectById(id);
         PermissionUtil.checkArticlePermission(user, article, currentUserId);
         ArticleDetailVO detail = toDetailVO(article);
@@ -84,22 +88,28 @@ public class AdminArticleServiceImpl implements AdminArticleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
-        Long currentUserId = UserContext.get();
-        User user = userMapper.getById(currentUserId);
+        Long currentUserId = requireCurrentUserId();
+        User user = userMapper.selectById(currentUserId);
         Article article = articleMapper.selectById(id);
         PermissionUtil.checkArticlePermission(user, article, currentUserId);
         commentMapper.deleteByArticleId(id);
         articleTagService.deleteByArticleId(id);
-        articleMapper.deleteById(id);
+        if (articleMapper.deleteById(id) != 1) {
+            throw new IllegalStateException("文章删除未影响预期记录数");
+        }
     }
 
 
     public PageResult<ArticleListVO> page(Integer page, Integer size, String title, Integer status) {
+        if (page == null || page < 1 || size == null || size < 1 || size > 100
+                || (long) (page - 1) * size > Integer.MAX_VALUE) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "分页参数不合法");
+        }
         if (status != null) validateStatus(status);
         int offset = (page - 1) * size;
-        List<ArticleListVO> records = articleMapper.adminPage(offset, size, title, status);
+        List<ArticleListVO> records = articleMapper.selectAdminPage(offset, size, title, status);
         attachTags(records);
-        return new PageResult<>(records, articleMapper.adminCount(title, status));
+        return new PageResult<>(records, articleMapper.countAdmin(title, status));
     }
 
     private void attachTags(List<ArticleListVO> records) {
@@ -122,7 +132,15 @@ public class AdminArticleServiceImpl implements AdminArticleService {
 
     private void validateStatus(Integer status) {
         if (status != null && !isValid(status)) {
-            throw new RuntimeException("文章状态只能是草稿或已发布");
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "文章状态只能是草稿或已发布");
         }
+    }
+
+    private Long requireCurrentUserId() {
+        Long currentUserId = UserContext.get();
+        if (currentUserId == null) {
+            throw new BusinessException(HttpStatus.UNAUTHORIZED, "未登录");
+        }
+        return currentUserId;
     }
 }

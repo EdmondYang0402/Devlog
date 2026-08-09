@@ -22,12 +22,12 @@ public class AdminTagController {
 
     @GetMapping
     public Result<List<AdminTagVO>> list() {
-        return Result.success(tagService.adminList());
+        return Result.success(tagService.listAdmin());
     }
 
     @GetMapping("/options")
     public Result<List<TagVO>> options() {
-        return Result.success(tagService.listAll());
+        return Result.success(tagService.list());
     }
 
     @PostMapping

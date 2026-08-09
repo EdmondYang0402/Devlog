@@ -14,7 +14,7 @@ public interface TagMapper {
     int insert(Tag tag);
 
     @Update("UPDATE tag SET name = #{name} WHERE id = #{id}")
-    int update(Tag tag);
+    int updateById(Tag tag);
 
     @Delete("DELETE FROM tag WHERE id = #{id}")
     int deleteById(Long id);
@@ -32,7 +32,18 @@ public interface TagMapper {
     boolean existsByNameExcludeId(@Param("name") String name, @Param("id") Long id);
 
     @Select("SELECT id, name, create_time AS createTime, update_time AS updateTime FROM tag ORDER BY name ASC, id ASC")
-    List<Tag> listAll();
+    List<Tag> selectList();
+
+    @Select("""
+        <script>
+        SELECT id, name, create_time AS createTime, update_time AS updateTime
+        FROM tag
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+        ORDER BY id
+        </script>
+        """)
+    List<Tag> selectByIds(@Param("ids") Collection<Long> ids);
 
     @Select("""
         SELECT t.id, t.name, COUNT(at.article_id) AS articleCount,
@@ -42,7 +53,7 @@ public interface TagMapper {
         GROUP BY t.id, t.name, t.create_time, t.update_time
         ORDER BY t.create_time DESC, t.id DESC
         """)
-    List<AdminTagVO> adminListWithArticleCount();
+    List<AdminTagVO> selectAdminListWithArticleCount();
 
     @Select("SELECT COUNT(*) FROM article_tag WHERE tag_id = #{tagId}")
     long countArticleReferences(Long tagId);
@@ -54,4 +65,13 @@ public interface TagMapper {
         </script>
         """)
     long countByIds(@Param("ids") Collection<Long> ids);
+
+    @Select("""
+    SELECT t.id, t.name
+    FROM tag t
+    JOIN category_tag ct
+      ON t.id = ct.tag_id
+    WHERE ct.category_id = #{categoryId}
+""")
+    List<Tag> selectByCategoryId(Long categoryId);
 }

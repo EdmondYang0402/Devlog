@@ -1,7 +1,7 @@
 export default {
   common: {
     confirm: '確認', cancel: 'キャンセル', save: '保存', submit: '送信', close: '閉じる',
-    loading: '読み込み中…', noData: 'データがありません', retry: '再試行', back: '戻る',
+    loading: '読み込み中…', noData: 'データがありません', retry: '再試行', back: '戻る', backToTop: 'ページ上部へ戻る',
     search: '検索', refresh: '更新', delete: '削除'
   },
   nav: {
@@ -27,7 +27,7 @@ export default {
     uncategorized: '未分類', statistics: '記事の統計'
   },
   archive: {
-    title: 'アーカイブ', eyebrow: 'アーカイブ · 執筆の軌跡', subtitle: '時間の流れをたどり、これまでの記録や思いを振り返ります。',
+    title: 'アーカイブ',
     total: '全 {count} 件の記事', articleUnit: '件の記事', search: 'アーカイブを検索',
     searchPlaceholder: 'タイトルまたは概要を検索…', clearSearch: '検索をクリア', viewMode: '表示形式',
     timeline: 'タイムライン', grid: 'グリッド', monthLabel: '月', categoryFilter: 'カテゴリーで絞り込む', allCategories: 'すべてのカテゴリー',
@@ -50,8 +50,8 @@ export default {
     nameTooLong: 'タグ名は50文字以内で入力してください', loadFailed: 'タグを読み込めませんでした',
     createSuccess: 'タグを追加しました', updateSuccess: 'タグを更新しました', deleteSuccess: 'タグを削除しました',
     createFailed: 'タグを追加できませんでした', updateFailed: 'タグを更新できませんでした', deleteFailed: 'タグを削除できませんでした',
-    selectLabel: 'タグ', selectPlaceholder: 'タグを選択', optionsFailed: 'タグ候補を読み込めませんでした',
-    noOptions: '先にタグ管理でタグを追加してください'
+    selectLabel: 'タグ', selectPlaceholder: 'タグを選択', selectCategoryFirst: '先にカテゴリーを選択してください', optionsFailed: 'タグ候補を読み込めませんでした',
+    noOptions: '先にタグ管理でタグを追加してください', noCategoryOptions: 'このカテゴリーに関連付けられたタグはありません'
   },
   tagFilter: {
     label: 'タグで絞り込む', placeholder: 'タグを選択してください', selected: '{count} 個のタグを選択中',
@@ -145,6 +145,7 @@ export default {
     cover: 'カバー', workTitle: '作品名', typeLabel: '種類', statusLabel: '状態', rating: '評価', shortReview: '短評',
     longReview: '詳細レビュー', finishedDate: '完了日',
     type: { book: '書籍', movie: '映画', anime: 'アニメ', game: 'ゲーム', unknown: '不明' },
+    section: { label: '作品の分類', game: 'ゲーム', anime: 'アニメ', movie: '映画', book: '書籍', archive: '趣味の記録', empty: 'この分類にはまだ作品がありません' },
     status: {
       unknown: '不明', generic: { planned: '予定', inProgress: '進行中', completed: '完了', dropped: '中断' },
       book: { planned: '読みたい', inProgress: '読書中', completed: '読了', dropped: '中断' },

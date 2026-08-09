@@ -18,8 +18,10 @@
             v-model="articleForm.categoryId"
             :loading="categoriesLoading"
             :disabled="categoriesLoading || categories.length === 0"
+            clearable
             placeholder="请选择分类"
             class="w-200"
+            @change="handleCategoryChange"
           >
             <el-option
               v-for="category in categories"
@@ -42,14 +44,14 @@
             collapse-tags
             collapse-tags-tooltip
             :loading="tagsLoading"
-            :disabled="tagsLoading || tagOptions.length === 0"
-            :placeholder="t('adminTag.selectPlaceholder')"
+            :disabled="!hasSelectedCategory || tagsLoading || tagOptions.length === 0"
+            :placeholder="!hasSelectedCategory ? t('adminTag.selectCategoryFirst') : t('adminTag.selectPlaceholder')"
             class="w-200"
           >
             <el-option v-for="tag in tagOptions" :key="tag.id" :label="tag.name" :value="tag.id" />
           </el-select>
-          <span v-if="!tagsLoading && tagOptions.length === 0" class="category-empty-tip">
-            {{ t('adminTag.noOptions') }}
+          <span v-if="hasSelectedCategory && !tagsLoading && tagOptions.length === 0" class="category-empty-tip">
+            {{ t('adminTag.noCategoryOptions') }}
           </span>
         </el-form-item>
 
@@ -208,8 +210,7 @@ import { useI18n } from 'vue-i18n'
 import ElMessage from 'element-plus/es/components/message/index.mjs'
 import { Upload, Position, Close } from '@element-plus/icons-vue'
 import { articlePublishService, articleUpdateService, getAdminArticleDetail } from '@/api/article'
-import { getAdminCategoryList } from '@/api/category'
-import { getAdminTagOptions } from '@/api/tag'
+import { getAdminCategoryList, getCategoryTags } from '@/api/category'
 import { adminImageUploadService } from '@/api/site'
 import { ARTICLE_STATUS, ARTICLE_STATUS_OPTIONS } from '@/constants/articleStatus'
 import { CODE_LANGUAGE_OPTIONS, handleCodeCopy, renderMarkdown } from '@/utils/markdown.js'
@@ -231,6 +232,11 @@ const router = useRouter()
 const { t } = useI18n()
 const articleId = computed(() => route.params.id ? Number(route.params.id) : null)
 const isEdit = computed(() => articleId.value !== null)
+const hasSelectedCategory = computed(() => (
+  articleForm.categoryId !== null
+  && articleForm.categoryId !== undefined
+  && articleForm.categoryId !== ''
+))
 
 const categories = ref([])
 const categoriesLoading = ref(false)
@@ -297,9 +303,6 @@ const loadCategories = async () => {
     const result = await getAdminCategoryList()
     categories.value = Array.isArray(result?.data) ? result.data : []
 
-    if (articleForm.categoryId === null && categories.value.length > 0) {
-      articleForm.categoryId = categories.value[0].id
-    }
   } catch (error) {
     categories.value = []
     ElMessage.error(error?.response?.data?.message || '加载分类失败')
@@ -308,17 +311,38 @@ const loadCategories = async () => {
   }
 }
 
-const loadTagOptions = async () => {
+let tagRequestSequence = 0
+
+const loadTagOptions = async categoryId => {
+  const sequence = ++tagRequestSequence
+  tagOptions.value = []
+
+  if (categoryId === null || categoryId === undefined || categoryId === '') {
+    tagsLoading.value = false
+    return false
+  }
+
   tagsLoading.value = true
   try {
-    const result = await getAdminTagOptions()
-    tagOptions.value = Array.isArray(result?.data) ? result.data : []
+    const result = await getCategoryTags(categoryId)
+    if (sequence !== tagRequestSequence) return false
+    tagOptions.value = Array.isArray(result?.data)
+      ? result.data.map(tag => ({ ...tag, id: Number(tag.id) }))
+      : []
+    return true
   } catch (error) {
+    if (sequence !== tagRequestSequence) return false
     tagOptions.value = []
     ElMessage.error(error?.response?.data?.message || t('adminTag.optionsFailed'))
+    return false
   } finally {
-    tagsLoading.value = false
+    if (sequence === tagRequestSequence) tagsLoading.value = false
   }
+}
+
+const handleCategoryChange = async categoryId => {
+  articleForm.tagIds = []
+  await loadTagOptions(categoryId)
 }
 
 const loadArticle = async () => {
@@ -328,21 +352,34 @@ const loadArticle = async () => {
   const article = result?.data
   if (!article) throw new Error('Article detail is empty')
 
+  const originalTagIds = Array.isArray(article.tagIds)
+    ? article.tagIds.map(Number)
+    : Array.isArray(article.tags)
+      ? article.tags.map(tag => Number(tag.id))
+      : []
+
   Object.assign(articleForm, {
     title: article.title || '',
     summary: article.summary || '',
     content: article.content || '',
     coverImage: article.coverImage || '',
     categoryId: article.categoryId ?? null,
-    tagIds: Array.isArray(article.tags) ? article.tags.map(tag => Number(tag.id)) : [],
+    tagIds: [],
     status: Number(article.status ?? ARTICLE_STATUS.DRAFT)
   })
+
+  return originalTagIds
 }
 
 onMounted(async () => {
   try {
-    await loadArticle()
-    await Promise.all([loadCategories(), loadTagOptions()])
+    await loadCategories()
+
+    if (isEdit.value) {
+      const originalTagIds = await loadArticle()
+      await loadTagOptions(articleForm.categoryId)
+      articleForm.tagIds = originalTagIds
+    }
   } catch (error) {
     console.error(error)
     ElMessage.error(error?.response?.data?.message || '加载文章信息失败')
@@ -513,7 +550,7 @@ const handleSave = async () => {
     return
   }
 
-  if (articleForm.categoryId === null) {
+  if (!hasSelectedCategory.value) {
     ElMessage.warning('请选择文章分类')
     return
   }

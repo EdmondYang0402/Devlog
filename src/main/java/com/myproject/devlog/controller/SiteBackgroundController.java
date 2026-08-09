@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/site/backgrounds")
+@RequestMapping("/site-backgrounds")
 public class SiteBackgroundController {
     private final SiteBackgroundService service;
 
@@ -20,6 +20,6 @@ public class SiteBackgroundController {
 
     @GetMapping
     public Result<List<SiteBackgroundPublicVO>> enabledList() {
-        return Result.success(service.getEnabledBackgrounds());
+        return Result.success(service.listEnabled());
     }
 }

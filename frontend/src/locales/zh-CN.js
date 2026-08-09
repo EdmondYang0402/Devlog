@@ -1,7 +1,7 @@
 export default {
   common: {
     confirm: '确认', cancel: '取消', save: '保存', submit: '提交', close: '关闭',
-    loading: '加载中…', noData: '暂无数据', retry: '重试', back: '返回',
+    loading: '加载中…', noData: '暂无数据', retry: '重试', back: '返回', backToTop: '返回顶部',
     search: '搜索', refresh: '刷新', delete: '删除'
   },
   nav: {
@@ -26,7 +26,7 @@ export default {
     previous: '上一页', next: '下一页', uncategorized: '未分类', statistics: '文章统计'
   },
   archive: {
-    title: '归档 / Archive', eyebrow: '归档 · 写作轨迹', subtitle: '沿着时间的微光，回看每一次记录与思考。',
+    title: '归档',
     total: '共 {count} 篇文章', articleUnit: '篇文章', search: '搜索归档',
     searchPlaceholder: '搜索标题或摘要…', clearSearch: '清空搜索', viewMode: '归档视图',
     timeline: '时间轴', grid: '矩阵', monthLabel: '月', categoryFilter: '分类筛选', allCategories: '全部分类',
@@ -49,8 +49,8 @@ export default {
     nameTooLong: '标签名称不能超过 50 个字符', loadFailed: '加载标签失败',
     createSuccess: '标签新增成功', updateSuccess: '标签修改成功', deleteSuccess: '标签删除成功',
     createFailed: '新增标签失败', updateFailed: '修改标签失败', deleteFailed: '删除标签失败',
-    selectLabel: '标签', selectPlaceholder: '请选择标签', optionsFailed: '加载标签选项失败',
-    noOptions: '请先在标签管理中新增标签'
+    selectLabel: '标签', selectPlaceholder: '请选择标签', selectCategoryFirst: '请先选择分类', optionsFailed: '加载标签选项失败',
+    noOptions: '请先在标签管理中新增标签', noCategoryOptions: '当前分类暂无可选标签'
   },
   tagFilter: {
     label: '标签筛选', placeholder: '请选择标签', selected: '已选择 {count} 个标签',
@@ -131,6 +131,7 @@ export default {
     cover: '封面', workTitle: '作品名称', typeLabel: '类型', statusLabel: '状态', rating: '评分', shortReview: '短评',
     longReview: '详细评价', finishedDate: '完成日期',
     type: { book: '书籍', movie: '电影', anime: '番剧', game: '游戏', unknown: '未知类型' },
+    section: { label: '作品分类', game: '游戏', anime: '动漫', movie: '电影', book: '书籍', archive: '兴趣档案', empty: '该分类暂无作品' },
     status: {
       unknown: '未知状态',
       generic: { planned: '计划', inProgress: '进行中', completed: '已完成', dropped: '搁置' },

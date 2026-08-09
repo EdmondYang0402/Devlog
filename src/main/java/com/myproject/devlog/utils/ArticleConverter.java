@@ -44,7 +44,13 @@ public class ArticleConverter {
             return null;
         }
         Article article = new Article();
-        BeanUtils.copyProperties(dto, article);
+        article.setId(dto.getId());
+        article.setTitle(dto.getTitle());
+        article.setContent(dto.getContent());
+        article.setSummary(dto.getSummary());
+        article.setCoverImage(dto.getCoverImage());
+        article.setCategoryId(dto.getCategoryId());
+        article.setStatus(dto.getStatus());
         return article;
     }
 }

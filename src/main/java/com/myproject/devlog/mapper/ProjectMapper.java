@@ -45,7 +45,7 @@ public interface ProjectMapper {
                 sort_order = #{sortOrder}
             WHERE id = #{id}
             """)
-    int update(ProjectShowcase entity);
+    int updateById(ProjectShowcase entity);
 
     @Delete("DELETE FROM project_showcase WHERE id = #{id}")
     int deleteById(Long id);
@@ -73,7 +73,7 @@ public interface ProjectMapper {
             LIMIT #{offset}, #{size}
             </script>
             """)
-    List<ProjectShowcase> adminPage(
+    List<ProjectShowcase> selectAdminPage(
             @Param("offset") Integer offset,
             @Param("size") Integer size,
             @Param("keyword") String keyword,
@@ -98,7 +98,7 @@ public interface ProjectMapper {
             </where>
             </script>
             """)
-    long adminCount(
+    long countAdmin(
             @Param("keyword") String keyword,
             @Param("status") Integer status,
             @Param("featured") Integer featured
@@ -130,7 +130,7 @@ public interface ProjectMapper {
             LIMIT #{offset}, #{size}
             </script>
             """)
-    List<ProjectShowcase> frontPage(
+    List<ProjectShowcase> selectFrontPage(
             @Param("offset") Integer offset,
             @Param("size") Integer size,
             @Param("status") Integer status,
@@ -150,7 +150,7 @@ public interface ProjectMapper {
             </where>
             </script>
             """)
-    long frontCount(@Param("status") Integer status, @Param("featured") Integer featured);
+    long countFront(@Param("status") Integer status, @Param("featured") Integer featured);
 
     /** 精选查询只按人工权重和主键排序，用于首页等固定数量的推荐区域。 */
     @Select("""
@@ -162,5 +162,5 @@ public interface ProjectMapper {
             ORDER BY sort_order DESC, id DESC
             LIMIT #{limit}
             """)
-    List<ProjectShowcase> featuredList(@Param("limit") Integer limit);
+    List<ProjectShowcase> selectFeaturedList(@Param("limit") Integer limit);
 }

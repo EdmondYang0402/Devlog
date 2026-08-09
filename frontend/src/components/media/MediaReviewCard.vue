@@ -1,43 +1,51 @@
 <script setup>
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { typeKey, statusKey } from '@/constants/mediaReview.js'
-import MediaRating from './MediaRating.vue'
 
-defineProps({ item: { type: Object, required: true } })
-const { t, locale } = useI18n()
-const formatDate = value => value
-  ? new Intl.DateTimeFormat(locale.value, { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(`${value}T00:00:00`))
-  : t('media.noFinishedDate')
+const DEFAULT_COVER = '/images/hero.jpg'
+const props = defineProps({
+  item: { type: Object, required: true },
+  coverVariant: { type: String, default: 'landscape' }
+})
+const { t } = useI18n()
+const coverSource = computed(() => props.item.coverUrl?.trim() || DEFAULT_COVER)
+const useFallbackCover = event => {
+  if (!event.target.src.endsWith(DEFAULT_COVER)) event.target.src = DEFAULT_COVER
+}
 </script>
 
 <template>
-  <router-link :to="`/media/${item.id}`" class="media-card">
+  <router-link :to="`/media/${item.id}`" class="media-card" :class="`is-${coverVariant}`">
     <div class="cover-wrap">
-      <img v-if="item.coverUrl" :src="item.coverUrl" :alt="item.title" class="cover" loading="lazy" />
-      <div v-else class="cover-placeholder"><i class="ti ti-photo" aria-hidden="true"></i></div>
-      <span class="type-chip">{{ t(`media.type.${typeKey(item.mediaType)}`) }}</span>
+      <img
+        :src="coverSource"
+        :alt="item.title"
+        class="cover"
+        loading="lazy"
+        decoding="async"
+        @error="useFallbackCover"
+      />
     </div>
     <div class="card-body">
       <h2>{{ item.title }}</h2>
-      <div class="meta">
-        <span>{{ t(statusKey(item.mediaType, item.status)) }}</span>
-        <span>{{ formatDate(item.finishedDate) }}</span>
-      </div>
-      <MediaRating :model-value="item.rating" readonly />
-      <p class="review">{{ item.shortReview || t('media.noShortReview') }}</p>
+      <p class="subtitle">{{ item.shortReview || t('media.noShortReview') }}</p>
     </div>
   </router-link>
 </template>
 
 <style scoped>
-.media-card { display:flex; flex-direction:column; min-width:0; overflow:hidden; border:1px solid var(--glass-border); border-radius:18px; background:var(--glass-bg); box-shadow:0 8px 24px color-mix(in srgb,var(--shadow-color) 45%,transparent); backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);transition:transform .22s ease,border-color .22s ease; }
-.media-card:hover { transform:translateY(-3px); border-color:var(--border-h); }
-.cover-wrap { position:relative; aspect-ratio:3/4; overflow:hidden; background:var(--purple-50); }
-.cover { width:100%; height:100%; display:block; object-fit:cover; }
-.cover-placeholder { height:100%; display:grid; place-items:center; color:var(--purple-200); font-size:36px; }
-.type-chip { position:absolute; left:10px; top:10px; padding:3px 9px; border-radius:999px; background:color-mix(in srgb,var(--bg-card) 86%,transparent); color:var(--purple-600); font-size:11px; backdrop-filter:blur(8px); }
-.card-body { display:flex; flex-direction:column; gap:9px; padding:14px; flex:1; }
-h2 { overflow:hidden; color:var(--text-1); font-size:16px; font-weight:600; line-height:1.4; text-overflow:ellipsis; white-space:nowrap; }
-.meta { display:flex; justify-content:space-between; gap:8px; color:var(--text-3); font-size:11px; }
-.review { display:-webkit-box; overflow:hidden; color:var(--text-2); font-size:13px; line-height:1.7; -webkit-box-orient:vertical; -webkit-line-clamp:3; min-height:66px; }
+.media-card { --media-card-background:rgba(245,245,250,.5); --media-card-background-hover:rgba(245,245,250,.6); display:flex; min-width:0; height:100%; flex-direction:column; overflow:hidden; border:1px solid rgba(255,255,255,.34); border-radius:18px; background:var(--media-card-background); box-shadow:0 8px 22px rgba(30,24,50,.09); -webkit-backdrop-filter:blur(10px) saturate(108%); backdrop-filter:blur(10px) saturate(108%); transition:transform .22s ease,border-color .22s ease,background-color .22s ease,box-shadow .22s ease; }
+.media-card:hover,.media-card:focus-visible { transform:translateY(-3px) scale(1.008); border-color:rgba(255,255,255,.52); background:var(--media-card-background-hover); box-shadow:0 12px 28px rgba(30,24,50,.12); outline:none; }
+.cover-wrap { position:relative; aspect-ratio:3/2; overflow:hidden; background:var(--purple-50); }
+.media-card.is-book .cover-wrap { aspect-ratio:3/4; }
+.cover { display:block; width:100%; height:100%; opacity:1; object-fit:cover; object-position:center; transition:transform .32s ease; }
+.media-card:hover .cover,.media-card:focus-visible .cover { transform:scale(1.025); }
+.card-body { display:flex; min-height:76px; flex:1; flex-direction:column; gap:5px; padding:12px 14px 14px; }
+h2 { display:-webkit-box; overflow:hidden; color:#171625; font-size:15px; font-weight:650; line-height:1.42; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
+.subtitle { display:-webkit-box; overflow:hidden; color:rgba(30,28,43,.68); font-size:11px; line-height:1.55; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
+:global(html[data-theme='dark']) h2 { color:#171625; }
+:global(html[data-theme='dark']) .subtitle { color:rgba(30,28,43,.7); }
+:global(html[data-theme='dark']) .media-card { --media-card-background:rgba(235,236,244,.62); --media-card-background-hover:rgba(235,236,244,.68); }
+@media(max-width:560px){.card-body{min-height:72px;padding:12px 13px 13px}h2{font-size:16px}.subtitle{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.media-card,.cover{transition:none}.media-card:hover,.media-card:focus-visible{transform:none}}
 </style>

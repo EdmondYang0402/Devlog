@@ -6,8 +6,6 @@ import lombok.Data;
 
 @Data
 public class UpdateUserDTO {
-    private Long id;
-
     @Size(max = 500, message = "头像URL不能超过500个字符")
     private String avatar;
 
@@ -15,6 +13,6 @@ public class UpdateUserDTO {
     private String bio;
 
     @Email(message = "邮箱格式不正确")
-    @Size(max = 255, message = "邮箱不能超过255个字符")
+    @Size(max = 254, message = "邮箱不能超过254个字符")
     private String email;
 }

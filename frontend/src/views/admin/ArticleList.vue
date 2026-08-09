@@ -69,104 +69,404 @@ const changePage = (newPage) => { page.value = newPage; loadArticles() }
 
 <template>
   <div class="article-list">
-
-    <!-- 搜索栏 -->
-    <div class="search-bar">
-      <input v-model="searchForm.title" class="s-input" placeholder="搜索文章标题" />
-      <select v-model="searchForm.status" class="s-select">
-        <option value="">全部状态</option>
-        <option v-for="option in ARTICLE_STATUS_OPTIONS" :key="option.value" :value="option.value">{{ option.label }}</option>
-      </select>
-      <button class="btn-search" @click="search">
-        <i class="ti ti-search" aria-hidden="true"></i> 搜索
-      </button>
-      <button class="btn-reset" @click="resetSearch">重置</button>
-      <button class="btn-create" @click="createArticle">
-        <i class="ti ti-plus" aria-hidden="true"></i> 新增文章
-      </button>
-    </div>
-
-    <!-- 表格 -->
-    <div class="table-wrap">
-      <table class="table">
-        <thead>
-          <tr>
-            <th style="width:60px">ID</th>
-            <th>标题</th>
-            <th style="width:70px">状态</th>
-            <th style="width:70px">浏览量</th>
-            <th style="width:140px">创建时间</th>
-            <th style="width:110px;text-align:center">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="article in articles" :key="article.id" class="table-row">
-            <td class="muted">{{ article.id }}</td>
-            <td class="title-cell">{{ article.title }}</td>
-            <td>
-              <span :class="['status-badge', isArticlePublished(article.status) ? 'pub' : 'draft']">
-                {{ getArticleStatusLabel(article.status) }}
-              </span>
-            </td>
-            <td class="muted">{{ article.viewCount }}</td>
-            <td class="muted">{{ formatDate(article.createTime) }}</td>
-            <td style="text-align:center">
-              <button class="btn-edit" @click="editArticle(article.id)">编辑</button>
-              <button class="btn-del" @click="deleteArticle(article.id)">删除</button>
-            </td>
-          </tr>
-          <tr v-if="articles.length === 0">
-            <td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted,#aaa)">暂无数据</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- 分页 -->
-    <div class="pagination">
-      <span class="page-info">共 {{ total }} 篇</span>
-      <div class="page-btns">
-        <button class="page-btn" @click="changePage(page - 1)" :disabled="page === 1">上一页</button>
-        <button class="page-btn active">{{ page }}</button>
-        <button class="page-btn" @click="changePage(page + 1)" :disabled="page * size >= total">下一页</button>
+    <section class="article-panel" aria-label="文章管理列表">
+      <div class="search-bar">
+        <input v-model="searchForm.title" class="s-input" placeholder="搜索文章标题" />
+        <select v-model="searchForm.status" class="s-select">
+          <option value="">全部状态</option>
+          <option v-for="option in ARTICLE_STATUS_OPTIONS" :key="option.value" :value="option.value">{{ option.label }}</option>
+        </select>
+        <button type="button" class="btn-search" @click="search">
+          <i class="ti ti-search" aria-hidden="true"></i> 搜索
+        </button>
+        <button type="button" class="btn-reset" @click="resetSearch">重置</button>
+        <button type="button" class="btn-create" @click="createArticle">
+          <i class="ti ti-plus" aria-hidden="true"></i> 新增文章
+        </button>
       </div>
-    </div>
 
+      <div class="table-wrap">
+        <table class="table">
+          <colgroup>
+            <col class="col-id" />
+            <col class="col-title" />
+            <col class="col-status" />
+            <col class="col-views" />
+            <col class="col-created" />
+            <col class="col-actions" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>标题</th>
+              <th class="center-cell">状态</th>
+              <th class="center-cell">浏览量</th>
+              <th>创建时间</th>
+              <th class="center-cell">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="article in articles" :key="article.id" class="table-row">
+              <td class="muted id-cell">{{ article.id }}</td>
+              <td class="title-cell" :title="article.title">{{ article.title }}</td>
+              <td class="center-cell">
+                <span :class="['status-badge', isArticlePublished(article.status) ? 'pub' : 'draft']">
+                  {{ getArticleStatusLabel(article.status) }}
+                </span>
+              </td>
+              <td class="muted center-cell numeric-cell">{{ article.viewCount }}</td>
+              <td class="muted date-cell">{{ formatDate(article.createTime) }}</td>
+              <td class="actions-cell">
+                <div class="action-buttons">
+                  <button type="button" class="btn-edit" @click="editArticle(article.id)">编辑</button>
+                  <button type="button" class="btn-del" @click="deleteArticle(article.id)">删除</button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="articles.length === 0">
+              <td colspan="6" class="empty-cell">暂无数据</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <span class="page-info">共 {{ total }} 篇</span>
+        <div class="page-btns">
+          <button type="button" class="page-btn" @click="changePage(page - 1)" :disabled="page === 1">上一页</button>
+          <button type="button" class="page-btn active">{{ page }}</button>
+          <button type="button" class="page-btn" @click="changePage(page + 1)" :disabled="page * size >= total">下一页</button>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
 <style scoped>
-.article-list { display:flex; flex-direction:column; gap:1rem; height:100%; }
+.article-list {
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+}
 
-.search-bar { display:flex; align-items:center; gap:8px; background:var(--surface-2,#fff); padding:.75rem 1rem; border-radius:10px; border:0.5px solid var(--border,#eee); flex-wrap:wrap; }
-.s-input { height:30px; padding:0 10px; font-size:12px; border:0.5px solid var(--border,#eee); border-radius:6px; background:var(--surface-1,#f9f9f9); color:var(--text-primary,#222); width:180px; outline:none; }
-.s-select { height:30px; padding:0 8px; font-size:12px; border:0.5px solid var(--border,#eee); border-radius:6px; background:var(--surface-1,#f9f9f9); color:var(--text-primary,#222); outline:none; }
-.btn-search { height:30px; padding:0 14px; font-size:12px; border-radius:6px; background:#E6F1FB; border:0.5px solid #85B7EB; color:#185FA5; cursor:pointer; }
-.btn-reset  { height:30px; padding:0 12px; font-size:12px; border-radius:6px; border:0.5px solid var(--border,#eee); background:transparent; color:var(--text-secondary,#666); cursor:pointer; }
-.btn-create { height:30px; padding:0 14px; font-size:12px; border-radius:6px; background:rgba(127,119,221,.12); border:0.5px solid #AFA9EC; color:#534AB7; cursor:pointer; margin-left:auto; }
+.article-panel {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 20px;
+  background: rgba(15, 18, 32, .82);
+  box-shadow: 0 18px 42px rgba(3, 5, 16, .2);
+  -webkit-backdrop-filter: blur(18px) saturate(105%);
+  backdrop-filter: blur(18px) saturate(105%);
+}
 
-.table-wrap { background:var(--surface-2,#fff); border-radius:10px; border:0.5px solid var(--border,#eee); overflow:auto; flex:1; }
-.table { width:100%; border-collapse:collapse; font-size:12px; }
-.table thead tr { background:var(--surface-1,#f9f9f9); border-bottom:0.5px solid var(--border,#eee); }
-.table th { padding:10px; text-align:left; font-weight:500; color:var(--text-muted,#aaa); white-space:nowrap; }
-.table-row { border-bottom:0.5px solid var(--border,#eee); transition:background .12s; }
-.table-row:hover { background:var(--surface-1,#f9f9f9); }
-.table td { padding:10px; vertical-align:middle; }
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, .075);
+}
 
-.title-cell { color:var(--text-primary,#222); font-weight:500; max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.muted { color:var(--text-secondary,#888); }
+.s-input,
+.s-select {
+  height: 36px;
+  padding: 0 11px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 9px;
+  outline: none;
+  background: rgba(255, 255, 255, .045);
+  color: var(--admin-text-primary);
+  font-size: 11px;
+  transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+}
 
-.status-badge { font-size:11px; padding:2px 8px; border-radius:12px; }
-.status-badge.pub   { background:#E1F5EE; color:#0F6E56; border:0.5px solid #9FE1CB; }
-.status-badge.draft { background:var(--surface-1,#f5f5f5); color:var(--text-muted,#aaa); border:0.5px solid var(--border,#eee); }
+.s-input { width: min(230px, 100%); }
+.s-select { min-width: 118px; color-scheme: dark; }
+.s-input::placeholder { color: var(--admin-text-muted); }
+.s-input:focus,
+.s-select:focus {
+  border-color: var(--admin-border-strong);
+  background: rgba(255, 255, 255, .065);
+  box-shadow: 0 0 0 3px rgba(170, 148, 237, .07);
+}
 
-.btn-edit { font-size:11px; padding:3px 10px; border-radius:5px; border:0.5px solid #85B7EB; background:#E6F1FB; color:#185FA5; cursor:pointer; margin-right:4px; }
-.btn-del  { font-size:11px; padding:3px 10px; border-radius:5px; border:0.5px solid #F09595; background:#FCEBEB; color:#A32D2D; cursor:pointer; }
+.search-bar button,
+.action-buttons button,
+.page-btn {
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+  transition: color .16s ease, background .16s ease, border-color .16s ease;
+}
 
-.pagination { display:flex; align-items:center; justify-content:space-between; background:var(--surface-2,#fff); padding:.6rem 1rem; border-radius:10px; border:0.5px solid var(--border,#eee); }
-.page-info { font-size:11px; color:var(--text-muted,#aaa); }
-.page-btns { display:flex; align-items:center; gap:8px; }
-.page-btn { padding:0 12px; height:28px; border-radius:6px; border:0.5px solid var(--border,#eee); background:transparent; font-size:12px; cursor:pointer; color:var(--text-secondary,#666); }
-.page-btn:disabled { opacity:.4; cursor:not-allowed; }
-.page-btn.active { background:#E6F1FB; border-color:#85B7EB; color:#185FA5; cursor:default; }
+.btn-search,
+.btn-reset,
+.btn-create {
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 14px;
+  font-size: 11px;
+}
+
+.btn-search {
+  border: 1px solid rgba(120, 165, 229, .34);
+  background: rgba(120, 165, 229, .1);
+  color: #a9c8f2;
+}
+
+.btn-reset {
+  border: 1px solid var(--admin-border);
+  background: transparent;
+  color: var(--admin-text-secondary);
+}
+
+.btn-create {
+  margin-left: auto;
+  border: 1px solid rgba(170, 148, 237, .38);
+  background: rgba(170, 148, 237, .14);
+  color: #cabcf5;
+}
+
+.btn-search:hover,
+.btn-create:hover {
+  border-color: rgba(199, 181, 255, .5);
+  background: rgba(170, 148, 237, .19);
+  color: #eee9ff;
+}
+
+.btn-reset:hover {
+  border-color: var(--admin-border-strong);
+  background: rgba(255, 255, 255, .045);
+  color: var(--admin-text-primary);
+}
+
+.table-wrap {
+  min-height: 360px;
+  flex: 1;
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, .075);
+  border-radius: 14px;
+  background: rgba(8, 11, 23, .68);
+}
+
+.table {
+  width: 100%;
+  min-width: 790px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  color: var(--admin-text-secondary);
+  font-size: 11px;
+}
+
+.col-id { width: 68px; }
+.col-title { width: auto; }
+.col-status { width: 112px; }
+.col-views { width: 86px; }
+.col-created { width: 168px; }
+.col-actions { width: 148px; }
+
+.table thead {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  background: rgba(29, 32, 51, .96);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .09);
+}
+
+.table th {
+  height: 46px;
+  padding: 0 16px;
+  color: rgba(238, 235, 249, .7);
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: .09em;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table-row {
+  border-bottom: 1px solid rgba(255, 255, 255, .065);
+  transition: background .14s ease;
+}
+
+.table-row:last-child { border-bottom: 0; }
+.table-row:hover { background: rgba(255, 255, 255, .035); }
+
+.table td {
+  height: 62px;
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+
+.center-cell { text-align: center; }
+
+.title-cell {
+  overflow: hidden;
+  color: var(--admin-text-primary);
+  font-size: 11px;
+  font-weight: 560;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.muted { color: rgba(236, 234, 248, .58); }
+.id-cell,
+.numeric-cell,
+.date-cell { font-variant-numeric: tabular-nums; }
+.numeric-cell { color: rgba(236, 234, 248, .7); }
+.date-cell { white-space: nowrap; }
+
+.status-badge {
+  min-width: 64px;
+  min-height: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 560;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.status-badge.pub {
+  border-color: rgba(104, 197, 155, .28);
+  background: rgba(104, 197, 155, .09);
+  color: #8dd9b8;
+}
+
+.status-badge.draft {
+  border-color: rgba(223, 175, 101, .28);
+  background: rgba(223, 175, 101, .085);
+  color: #e7bd7c;
+}
+
+.actions-cell { text-align: center; }
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-edit,
+.btn-del {
+  width: 54px;
+  height: 30px;
+  padding: 0;
+  font-size: 10px;
+}
+
+.btn-edit {
+  border: 1px solid rgba(120, 165, 229, .3);
+  background: rgba(120, 165, 229, .09);
+  color: #a8c7ef;
+}
+
+.btn-del {
+  border: 1px solid rgba(223, 116, 128, .3);
+  background: rgba(223, 116, 128, .085);
+  color: #efa0a8;
+}
+
+.btn-edit:hover {
+  border-color: rgba(120, 165, 229, .48);
+  background: rgba(120, 165, 229, .15);
+  color: #d6e7ff;
+}
+
+.btn-del:hover {
+  border-color: rgba(223, 116, 128, .48);
+  background: rgba(223, 116, 128, .14);
+  color: #ffc4ca;
+}
+
+.empty-cell {
+  height: 180px;
+  padding: 32px;
+  color: var(--admin-text-muted);
+  text-align: center;
+}
+
+.pagination {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 2px;
+}
+
+.page-info { color: var(--admin-text-muted); font-size: 10px; }
+.page-btns { display: flex; align-items: center; gap: 7px; }
+
+.page-btn {
+  min-width: 32px;
+  height: 30px;
+  padding: 0 11px;
+  border: 1px solid var(--admin-border);
+  background: transparent;
+  color: var(--admin-text-secondary);
+  font-size: 10px;
+}
+
+.page-btn:not(:disabled):hover {
+  border-color: var(--admin-border-strong);
+  background: rgba(255, 255, 255, .045);
+  color: var(--admin-text-primary);
+}
+
+.page-btn:disabled { opacity: .35; cursor: not-allowed; }
+.page-btn.active {
+  border-color: rgba(170, 148, 237, .36);
+  background: rgba(170, 148, 237, .13);
+  color: #cabcf5;
+  cursor: default;
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .article-panel { background: var(--admin-panel-fallback); }
+}
+
+@media (max-width: 1100px) {
+  .table { min-width: 720px; }
+  .col-id,
+  .table th:first-child,
+  .table td:first-child { display: none; }
+  .col-status { width: 100px; }
+  .col-created { width: 154px; }
+  .col-actions { width: 138px; }
+}
+
+@media (max-width: 700px) {
+  .article-list { height: auto; }
+  .article-panel { min-height: 0; padding: 14px; border-radius: 16px; }
+  .search-bar { align-items: stretch; }
+  .s-input { width: 100%; }
+  .s-select { flex: 1; }
+  .btn-create { margin-left: 0; }
+  .table-wrap { min-height: 340px; }
+  .pagination { align-items: flex-start; flex-direction: column; }
+}
+
+@media (max-width: 460px) {
+  .s-select { width: 100%; flex-basis: 100%; }
+  .btn-search,
+  .btn-reset,
+  .btn-create { flex: 1; }
+  .page-btn { padding-inline: 9px; }
+}
 </style>

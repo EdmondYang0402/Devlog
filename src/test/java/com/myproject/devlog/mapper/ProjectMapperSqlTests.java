@@ -13,8 +13,8 @@ class ProjectMapperSqlTests {
 
     @Test
     void adminPageAndCountUseSameBoundFiltersAndExpectedOrdering() throws Exception {
-        String pageSql = sql("adminPage");
-        String countSql = sql("adminCount");
+        String pageSql = sql("selectAdminPage");
+        String countSql = sql("countAdmin");
 
         for (String condition : new String[]{"#{keyword}", "#{status}", "#{featured}"}) {
             assertTrue(pageSql.contains(condition));
@@ -29,8 +29,8 @@ class ProjectMapperSqlTests {
 
     @Test
     void frontPageKeepsFeaturedWeightAndNullCompletionDateOrdering() throws Exception {
-        String pageSql = sql("frontPage");
-        String countSql = sql("frontCount");
+        String pageSql = sql("selectFrontPage");
+        String countSql = sql("countFront");
         assertTrue(pageSql.contains("status = #{status}"));
         assertTrue(pageSql.contains("featured = #{featured}"));
         assertTrue(countSql.contains("status = #{status}"));
@@ -44,7 +44,7 @@ class ProjectMapperSqlTests {
 
     @Test
     void featuredListFiltersAndLimitsInDatabase() throws Exception {
-        String featuredSql = sql("featuredList");
+        String featuredSql = sql("selectFeaturedList");
         assertTrue(featuredSql.contains("WHERE featured = 1"));
         assertTrue(featuredSql.contains("ORDER BY sort_order DESC, id DESC"));
         assertTrue(featuredSql.contains("LIMIT #{limit}"));

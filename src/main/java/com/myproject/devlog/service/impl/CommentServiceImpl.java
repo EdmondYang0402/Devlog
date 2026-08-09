@@ -1,5 +1,6 @@
 package com.myproject.devlog.service.impl;
 
+import com.myproject.devlog.common.BusinessException;
 import com.myproject.devlog.common.UserContext;
 import com.myproject.devlog.mapper.ArticleMapper;
 import com.myproject.devlog.mapper.CommentMapper;
@@ -12,6 +13,7 @@ import com.myproject.devlog.service.CommentService;
 import com.myproject.devlog.utils.CommentConverter;
 import com.myproject.devlog.utils.PermissionUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -36,14 +38,11 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void create(CommentCreateDTO dto) {
-        validateCreateDTO(dto);
-
         Long currentUserId = requireCurrentUserId();
         User currentUser = requireUser(currentUserId);
         PermissionUtil.checkUser(currentUser);
-
         if (articleMapper.selectById(dto.getArticleId()) == null) {
-            throw new RuntimeException("文章不存在");
+            throw new BusinessException(HttpStatus.NOT_FOUND, "文章不存在");
         }
 
         Comment comment = CommentConverter.fromCreateDTO(dto, currentUserId);
@@ -52,7 +51,9 @@ public class CommentServiceImpl implements CommentService {
             applyReplyTarget(comment, dto.getParentId(), dto.getArticleId());
         }
 
-        commentMapper.insert(comment);
+        if (commentMapper.insert(comment) != 1) {
+            throw new IllegalStateException("评论创建未影响预期记录数");
+        }
     }
 
     @Override
@@ -60,26 +61,28 @@ public class CommentServiceImpl implements CommentService {
     public void delete(Long id) {
         Long currentUserId = requireCurrentUserId();
         User currentUser = requireUser(currentUserId);
-        Comment comment = commentMapper.getById(id);
+        Comment comment = commentMapper.selectById(id);
         PermissionUtil.checkUser(currentUser);
 
         if (comment == null) {
-            throw new RuntimeException("评论不存在");
+            throw new BusinessException(HttpStatus.NOT_FOUND, "评论不存在");
         }
         if (!PermissionUtil.isAdmin(currentUser)
                 && !PermissionUtil.isOwner(currentUserId, comment.getUserId())) {
-            throw new RuntimeException("无权删除该评论");
+            throw new BusinessException(HttpStatus.FORBIDDEN, "无权删除该评论");
         }
-        commentMapper.logicalDelete(id);
+        if (commentMapper.deleteById(id) == 0) {
+            throw new IllegalStateException("评论删除未影响任何记录");
+        }
     }
 
     @Override
     public List<CommentVO> listByArticleId(Long articleId) {
         if (articleId == null) {
-            throw new RuntimeException("文章 ID 不能为空");
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "文章 ID 不能为空");
         }
 
-        List<Comment> comments = commentMapper.listByArticleId(articleId);
+        List<Comment> comments = commentMapper.selectByArticleId(articleId);
         Map<Long, User> users = loadUsers(comments);
         Map<Long, CommentVO> roots = new LinkedHashMap<>();
 
@@ -106,16 +109,16 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private void applyReplyTarget(Comment comment, Long targetCommentId, Long articleId) {
-        Comment target = commentMapper.getById(targetCommentId);
+        Comment target = commentMapper.selectById(targetCommentId);
         if (target == null || !articleId.equals(target.getArticleId())) {
-            throw new RuntimeException("被回复的评论不存在");
+            throw new BusinessException(HttpStatus.NOT_FOUND, "被回复的评论不存在");
         }
 
         Long rootId = target.getParentId() == null ? target.getId() : target.getParentId();
         if (target.getParentId() != null) {
-            Comment root = commentMapper.getById(rootId);
+            Comment root = commentMapper.selectById(rootId);
             if (root == null || root.getParentId() != null || !articleId.equals(root.getArticleId())) {
-                throw new RuntimeException("评论层级数据异常");
+                throw new IllegalStateException("评论层级数据异常");
             }
         }
 
@@ -134,31 +137,22 @@ public class CommentServiceImpl implements CommentService {
 
     private void loadUser(Map<Long, User> users, Long userId) {
         if (userId != null && !users.containsKey(userId)) {
-            users.put(userId, userMapper.getById(userId));
-        }
-    }
-
-    private void validateCreateDTO(CommentCreateDTO dto) {
-        if (dto == null || dto.getArticleId() == null) {
-            throw new RuntimeException("文章 ID 不能为空");
-        }
-        if (dto.getContent() == null || dto.getContent().isBlank()) {
-            throw new RuntimeException("评论内容不能为空");
+            users.put(userId, userMapper.selectById(userId));
         }
     }
 
     private Long requireCurrentUserId() {
         Long currentUserId = UserContext.get();
         if (currentUserId == null) {
-            throw new RuntimeException("未登录");
+            throw new BusinessException(HttpStatus.UNAUTHORIZED, "未登录");
         }
         return currentUserId;
     }
 
     private User requireUser(Long userId) {
-        User user = userMapper.getById(userId);
+        User user = userMapper.selectById(userId);
         if (user == null) {
-            throw new RuntimeException("用户不存在");
+            throw new BusinessException(HttpStatus.NOT_FOUND, "用户不存在");
         }
         return user;
     }

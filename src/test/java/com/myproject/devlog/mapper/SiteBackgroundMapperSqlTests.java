@@ -13,8 +13,8 @@ class SiteBackgroundMapperSqlTests {
 
     @Test
     void adminPageAndCountUseSameBoundFiltersAndDatabasePagination() throws Exception {
-        String pageSql = sql("adminPage");
-        String countSql = sql("adminCount");
+        String pageSql = sql("selectAdminPage");
+        String countSql = sql("countAdmin");
         assertTrue(pageSql.contains("title LIKE CONCAT('%', #{keyword}, '%')"));
         assertTrue(countSql.contains("title LIKE CONCAT('%', #{keyword}, '%')"));
         assertTrue(pageSql.contains("enabled = #{enabled}"));

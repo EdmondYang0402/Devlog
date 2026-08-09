@@ -8,6 +8,37 @@ export const mediaTypeOptions = Object.freeze([
   { value: MEDIA_TYPES.GAME, key: 'game', icon: 'ti-device-gamepad-2' }
 ])
 
+export const mediaArchiveSections = Object.freeze([
+  {
+    key: 'game',
+    titleKey: 'media.section.game',
+    iconType: 'game',
+    mediaType: MEDIA_TYPES.GAME,
+    coverVariant: 'landscape'
+  },
+  {
+    key: 'anime',
+    titleKey: 'media.section.anime',
+    iconType: 'anime',
+    mediaType: MEDIA_TYPES.ANIME,
+    coverVariant: 'landscape'
+  },
+  {
+    key: 'movie',
+    titleKey: 'media.section.movie',
+    iconType: 'movie',
+    mediaType: MEDIA_TYPES.MOVIE,
+    coverVariant: 'landscape'
+  },
+  {
+    key: 'book',
+    titleKey: 'media.section.book',
+    iconType: 'book',
+    mediaType: MEDIA_TYPES.BOOK,
+    coverVariant: 'book'
+  }
+])
+
 export const statusOptions = Object.freeze([
   { value: MEDIA_STATUS.PLANNED, key: 'planned' },
   { value: MEDIA_STATUS.IN_PROGRESS, key: 'inProgress' },

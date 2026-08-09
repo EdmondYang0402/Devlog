@@ -13,13 +13,13 @@ public interface MediaReviewService {
 
     void delete(Long id);
 
-    MediaReviewDetailVO getAdminDetail(Long id);
+    MediaReviewDetailVO getAdminById(Long id);
 
-    PageResult<MediaReviewListVO> adminPage(Integer page, Integer size, String title,
+    PageResult<MediaReviewListVO> pageAdmin(Integer page, Integer size, String title,
                                              Integer mediaType, Integer status);
 
-    MediaReviewDetailVO getFrontDetail(Long id);
+    MediaReviewDetailVO getById(Long id);
 
-    PageResult<MediaReviewListVO> getFrontPage(Integer page, Integer size,
+    PageResult<MediaReviewListVO> page(Integer page, Integer size,
                                                 Integer mediaType, String sort);
 }

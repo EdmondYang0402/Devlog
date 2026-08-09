@@ -35,7 +35,7 @@ class LocalStorageServiceTests {
     void storesWebpAndReturnsBrowserAccessibleRelativeUrl() {
         LocalStorageServiceImpl service = createService();
         UserContext.set(7L);
-        when(userMapper.getById(7L)).thenReturn(
+        when(userMapper.selectById(7L)).thenReturn(
                 User.builder().id(7L).role(RoleConstant.ADMIN).build());
         MockMultipartFile file = new MockMultipartFile(
                 "file", "cover.webp", "image/webp", new byte[]{1, 2, 3});

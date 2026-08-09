@@ -1,5 +1,6 @@
 package com.myproject.devlog.service.impl;
 
+import com.myproject.devlog.common.BusinessException;
 import com.myproject.devlog.common.PageResult;
 import com.myproject.devlog.mapper.ArticleMapper;
 import com.myproject.devlog.pojo.entity.Article;
@@ -9,6 +10,7 @@ import com.myproject.devlog.pojo.vo.TagVO;
 import com.myproject.devlog.service.ArticleService;
 import com.myproject.devlog.service.ArticleTagService;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -33,12 +35,17 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ArticleDetailVO getById(Long id) {
         Article article = articleMapper.selectById(id);
+        if (article == null) {
+            throw new BusinessException(HttpStatus.NOT_FOUND, "文章不存在");
+        }
         return toDetailVO(article);
     }
 
     @Override
     public void increaseViewCount(Long id) {
-        articleMapper.updateViewCount(id);
+        if (articleMapper.updateViewCount(id) == 0) {
+            throw new BusinessException(HttpStatus.NOT_FOUND, "文章不存在或未发布");
+        }
     }
 
     @Override
@@ -46,7 +53,7 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleDetailVO getFrontDetail(Long id) {
         ArticleDetailVO detail = articleMapper.selectFrontDetailById(id);
         if (detail == null) {
-            return null;
+            throw new BusinessException(HttpStatus.NOT_FOUND, "文章不存在或未发布");
         }
         articleMapper.updateViewCount(id);
         detail.setViewCount(detail.getViewCount() == null ? 1L : detail.getViewCount() + 1);
@@ -55,9 +62,13 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public PageResult<ArticleListVO> getFrontList(Integer page, Integer size, Long categoryId,
+    public PageResult<ArticleListVO> page(Integer page, Integer size, Long categoryId,
                                                   String categorySlug, String keyword,
                                                   List<Long> tagIds) {
+        if (page == null || page < 1 || size == null || size < 1 || size > 100
+                || (long) (page - 1) * size > Integer.MAX_VALUE) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "分页参数不合法");
+        }
         Integer offset = (page - 1) * size;
         String categoryName = resolveCategoryName(categorySlug);
         String normalizedKeyword = normalizeKeyword(keyword);
@@ -100,11 +111,11 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleListVO> records;
         Integer total;
         if (tagIds.isEmpty()) {
-            records = articleMapper.frontPage(offset, size, categoryId, categoryName, keyword);
+            records = articleMapper.selectFrontPage(offset, size, categoryId, categoryName, keyword);
             // records 和 count 必须使用同一筛选条件，否则分页总数会与当前列表不一致。
             total = articleMapper.countFront(categoryId, categoryName, keyword);
         } else {
-            records = articleMapper.frontPageByTagIds(
+            records = articleMapper.selectFrontPageByTagIds(
                     offset, size, categoryId, categoryName, keyword, tagIds, tagIds.size()
             );
             total = articleMapper.countFrontByTagIds(

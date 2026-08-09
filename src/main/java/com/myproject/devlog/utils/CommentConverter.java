@@ -19,7 +19,8 @@ public class CommentConverter {
         }
 
         Comment comment = new Comment();
-        BeanUtils.copyProperties(dto, comment);
+        comment.setArticleId(dto.getArticleId());
+        comment.setParentId(dto.getParentId());
         comment.setUserId(userId);
         comment.setContent(dto.getContent().trim());
         return comment;

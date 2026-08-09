@@ -29,7 +29,7 @@ public interface SiteBackgroundMapper {
             SET image_url = #{imageUrl}, title = #{title}, enabled = #{enabled}, sort_order = #{sortOrder}
             WHERE id = #{id}
             """)
-    int update(SiteBackground entity);
+    int updateById(SiteBackground entity);
 
     @Delete("DELETE FROM site_background WHERE id = #{id}")
     int deleteById(Long id);
@@ -51,7 +51,7 @@ public interface SiteBackgroundMapper {
             LIMIT #{offset}, #{size}
             </script>
             """)
-    List<SiteBackground> adminPage(@Param("offset") Integer offset,
+    List<SiteBackground> selectAdminPage(@Param("offset") Integer offset,
                                    @Param("size") Integer size,
                                    @Param("keyword") String keyword,
                                    @Param("enabled") Integer enabled);
@@ -69,7 +69,7 @@ public interface SiteBackgroundMapper {
             </where>
             </script>
             """)
-    long adminCount(@Param("keyword") String keyword, @Param("enabled") Integer enabled);
+    long countAdmin(@Param("keyword") String keyword, @Param("enabled") Integer enabled);
 
     /** 前台只读取启用记录；sortOrder 越大越靠前，主键用于保证同权重下顺序稳定。 */
     @Select("""

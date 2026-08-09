@@ -87,12 +87,12 @@ class JwtInterceptorTests {
 
     @Test
     void siteBackgroundGetIsPublicButWritesAndAdminRoutesRemainProtected() {
-        assertTrue(interceptor.preHandle(projectRequest("GET", "/site/backgrounds"), response, new Object()));
+        assertTrue(interceptor.preHandle(projectRequest("GET", "/site-backgrounds"), response, new Object()));
         assertEquals(401, assertThrows(BusinessException.class,
-                () -> interceptor.preHandle(projectRequest("POST", "/site/backgrounds"), response, new Object()))
+                () -> interceptor.preHandle(projectRequest("POST", "/site-backgrounds"), response, new Object()))
                 .getStatus().value());
         assertEquals(401, assertThrows(BusinessException.class,
-                () -> interceptor.preHandle(projectRequest("GET", "/site/backgrounds/1"), response, new Object()))
+                () -> interceptor.preHandle(projectRequest("GET", "/site-backgrounds/1"), response, new Object()))
                 .getStatus().value());
         assertEquals(401, assertThrows(BusinessException.class,
                 () -> interceptor.preHandle(projectRequest("GET", "/admin/site-backgrounds"), response, new Object()))
@@ -104,13 +104,13 @@ class JwtInterceptorTests {
         assertTrue(interceptor.preHandle(
                 projectRequest("OPTIONS", "/anything"), response, new Object()));
         assertTrue(interceptor.preHandle(
-                projectRequest("POST", "/user/login"), response, new Object()));
+                projectRequest("POST", "/users/login"), response, new Object()));
         assertTrue(interceptor.preHandle(
-                projectRequest("POST", "/user/register"), response, new Object()));
+                projectRequest("POST", "/users/register"), response, new Object()));
 
         assertEquals(401, assertThrows(BusinessException.class,
                 () -> interceptor.preHandle(
-                        projectRequest("POST", "/user/profile"), response, new Object()))
+                        projectRequest("POST", "/users/profile"), response, new Object()))
                 .getStatus().value());
     }
 

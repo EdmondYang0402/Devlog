@@ -61,7 +61,6 @@ onUnmounted(() => document.removeEventListener('click', closeMenu))
 <template>
   <nav class="nav">
     <router-link to="/" class="logo">
-      <span class="logo-mark">✦</span>
       <span class="logo-text">Hathaway's Blog</span>
     </router-link>
 
@@ -140,7 +139,6 @@ onUnmounted(() => document.removeEventListener('click', closeMenu))
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
   margin-right: clamp(48px, 4vw, 64px);
   color: var(--purple-400);
   font-size: 18px;
@@ -149,7 +147,6 @@ onUnmounted(() => document.removeEventListener('click', closeMenu))
   letter-spacing: .015em;
   white-space: nowrap;
 }
-.logo-mark { font-size: .92em; }
 .links { flex: 0 0 auto; align-self: stretch; display: flex; align-items: stretch; gap: clamp(28px, 2.4vw, 36px); }
 .links a {
   position: relative;
@@ -243,7 +240,6 @@ onUnmounted(() => document.removeEventListener('click', closeMenu))
 @media (max-width: 680px) {
   .nav { height: 58px; padding-inline: 12px; }
   .logo { margin-right: 14px; font-size: 17px; }
-  .logo-text { display: none; }
   .links { flex: 1 1 auto; gap: 14px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
   .links::-webkit-scrollbar { display: none; }
   .links a { font-size: 12px; }

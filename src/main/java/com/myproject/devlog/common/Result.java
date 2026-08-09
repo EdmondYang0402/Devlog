@@ -1,6 +1,7 @@
 package com.myproject.devlog.common;
 
 import lombok.Data;
+import org.springframework.http.HttpStatus;
 
 @Data
 public class Result<T> {
@@ -35,7 +36,11 @@ public class Result<T> {
         return r;
     }
 
+    public static <T> Result<T> error(HttpStatus status, String message) {
+        return error(status.value(), message);
+    }
+
     public static <T> Result<T> error(String message) {
-        return error(500, message);
+        return error(HttpStatus.BAD_REQUEST, message);
     }
 }

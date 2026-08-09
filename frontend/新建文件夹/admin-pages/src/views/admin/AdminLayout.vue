@@ -31,7 +31,7 @@ const isActive = (to) => route.path === to || route.path.startsWith(to + '/')
     <div class="admin-layout">
         <aside class="sidebar">
             <div class="sidebar-logo">
-                <span class="logo-text">✦ 后台管理</span>
+                <span class="logo-text">后台管理</span>
             </div>
             <nav class="sidebar-nav">
                 <template v-for="group in navItems" :key="group.group">

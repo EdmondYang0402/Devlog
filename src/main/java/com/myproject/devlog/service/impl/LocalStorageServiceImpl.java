@@ -70,7 +70,14 @@ public class LocalStorageServiceImpl implements StorageService {
 
     @Override
     public ImageUploadVO uploadImage(MultipartFile file) {
-        User user = userMapper.getById(UserContext.get());
+        Long userId = UserContext.get();
+        if (userId == null) {
+            throw new BusinessException(HttpStatus.UNAUTHORIZED, "未登录");
+        }
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(HttpStatus.NOT_FOUND, "用户不存在");
+        }
         if (!isAdmin(user)) {
             throw new BusinessException(HttpStatus.FORBIDDEN, "无管理员上传权限");
         }
@@ -116,17 +123,15 @@ public class LocalStorageServiceImpl implements StorageService {
                     uploadRoot,
                     exception
             );
-            throw new BusinessException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "上传目录不可写，请检查 APP_UPLOAD_DIR 和目录权限");
-        } catch (Exception exception) {
+            throw new IllegalStateException("上传目录不可写", exception);
+        } catch (IOException exception) {
             log.error(
                     "Image upload failed: filename={}, uploadDir={}",
                     file.getOriginalFilename(),
                     uploadRoot,
                     exception
             );
-            throw new BusinessException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "图片保存失败，请查看后端日志中的异常详情");
+            throw new IllegalStateException("图片保存失败", exception);
         }
 
         return new ImageUploadVO(buildPublicUrl(objectKey), objectKey);

@@ -22,7 +22,7 @@ public interface ArticleTagMapper {
         </foreach>
         </script>
         """)
-    int batchInsert(@Param("relations") Collection<ArticleTag> relations);
+    int insertBatch(@Param("relations") Collection<ArticleTag> relations);
 
     @Select("""
         SELECT t.id, t.name
@@ -31,7 +31,7 @@ public interface ArticleTagMapper {
         WHERE at.article_id = #{articleId}
         ORDER BY t.name ASC, t.id ASC
         """)
-    List<TagVO> listTagsByArticleId(Long articleId);
+    List<TagVO> selectTagsByArticleId(Long articleId);
 
     @Select("""
         <script>
@@ -45,7 +45,7 @@ public interface ArticleTagMapper {
         ORDER BY at.article_id ASC, t.name ASC, t.id ASC
         </script>
         """)
-    List<ArticleTagQueryVO> listTagsByArticleIds(@Param("articleIds") Collection<Long> articleIds);
+    List<ArticleTagQueryVO> selectTagsByArticleIds(@Param("articleIds") Collection<Long> articleIds);
 
     @Select("SELECT COUNT(*) FROM article_tag WHERE tag_id = #{tagId}")
     long countByTagId(Long tagId);
@@ -61,5 +61,5 @@ public interface ArticleTagMapper {
     WHERE at.article_id = #{articleId}
     ORDER BY t.id
     """)
-    List<Tag> listByArticleId(Long articleId);
+    List<Tag> selectByArticleId(Long articleId);
 }

@@ -47,14 +47,14 @@ class MediaReviewServiceImplTests {
     @Test
     void createRejectsUnexpectedAffectedRows() {
         when(mapper.insert(org.mockito.ArgumentMatchers.any())).thenReturn(0);
-        assertThrows(BusinessException.class, () -> service.create(createDTO("作品")));
+        assertThrows(IllegalStateException.class, () -> service.create(createDTO("作品")));
     }
 
     @Test
     void missingDetailUsesNotFoundStatus() {
         when(mapper.selectById(9L)).thenReturn(null);
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> service.getAdminDetail(9L));
+                () -> service.getAdminById(9L));
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
     }
 
@@ -62,14 +62,14 @@ class MediaReviewServiceImplTests {
     void updatePreservesIdentityAndAppliesValidatedFields() {
         MediaReview existing = entity(7L, "旧标题");
         when(mapper.selectById(7L)).thenReturn(existing);
-        when(mapper.update(existing)).thenReturn(1);
+        when(mapper.updateById(existing)).thenReturn(1);
         MediaReviewUpdateDTO dto = updateDTO(" 新标题 ");
 
         service.update(7L, dto);
 
         assertEquals(7L, existing.getId());
         assertEquals("新标题", existing.getTitle());
-        verify(mapper).update(existing);
+        verify(mapper).updateById(existing);
     }
 
     @Test
@@ -86,27 +86,27 @@ class MediaReviewServiceImplTests {
 
     @Test
     void adminPagePassesNormalizedFiltersToMapper() {
-        when(mapper.adminPage(10, 10, "关键词", 1, 2)).thenReturn(List.of(entity(1L, "作品")));
-        when(mapper.adminCount("关键词", 1, 2)).thenReturn(1L);
+        when(mapper.selectAdminPage(10, 10, "关键词", 1, 2)).thenReturn(List.of(entity(1L, "作品")));
+        when(mapper.countAdmin("关键词", 1, 2)).thenReturn(1L);
 
-        var result = service.adminPage(2, 10, " 关键词 ", 1, 2);
+        var result = service.pageAdmin(2, 10, " 关键词 ", 1, 2);
 
         assertEquals(1, result.getRecords().size());
         assertEquals(1L, result.getTotal());
-        verify(mapper).adminPage(10, 10, "关键词", 1, 2);
+        verify(mapper).selectAdminPage(10, 10, "关键词", 1, 2);
     }
 
     @Test
     void frontPagePassesTypeAndSortToDatabaseQuery() {
-        when(mapper.frontPage(0, 12, 3, "rating")).thenReturn(List.of());
-        when(mapper.frontCount(3)).thenReturn(0L);
+        when(mapper.selectFrontPage(0, 12, 3, "rating")).thenReturn(List.of());
+        when(mapper.countFront(3)).thenReturn(0L);
 
-        service.getFrontPage(1, 12, 3, "rating");
+        service.page(1, 12, 3, "rating");
 
-        verify(mapper).frontPage(0, 12, 3, "rating");
-        verify(mapper).frontCount(3);
+        verify(mapper).selectFrontPage(0, 12, 3, "rating");
+        verify(mapper).countFront(3);
         assertThrows(BusinessException.class,
-                () -> service.getFrontPage(1, 12, 3, "unknown"));
+                () -> service.page(1, 12, 3, "unknown"));
     }
 
     private MediaReviewCreateDTO createDTO(String title) {

@@ -28,7 +28,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         StatisticsVO statistics = new StatisticsVO();
         statistics.setArticleCount(articleMapper.countPublished());
         statistics.setCommentCount(commentMapper.countActive());
-        statistics.setCategoryCount(categoryMapper.countAll());
+        statistics.setCategoryCount(categoryMapper.count());
         return statistics;
     }
 }

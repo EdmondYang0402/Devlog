@@ -8,6 +8,7 @@ import com.myproject.devlog.pojo.vo.AdminSiteConfigVO;
 import com.myproject.devlog.pojo.vo.SiteProfileVO;
 import com.myproject.devlog.service.SiteConfigService;
 import com.myproject.devlog.utils.SiteConfigConverter;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,19 +42,19 @@ public class SiteConfigServiceImpl implements SiteConfigService {
     public void update(SiteConfigUpdateDTO dto) {
         SiteConfig config = siteConfigConverter.fromUpdateDTO(dto);
 
-        int affected = siteConfigMapper.getConfig() == null
+        int affected = siteConfigMapper.selectConfig() == null
                 ? siteConfigMapper.insert(config)
-                : siteConfigMapper.update(config);
+                : siteConfigMapper.updateById(config);
 
         if (affected != 1) {
-            throw new BusinessException("站点配置保存失败");
+            throw new IllegalStateException("站点配置保存未影响预期记录数");
         }
     }
 
     private SiteConfig checkConfig(){
-        SiteConfig config = siteConfigMapper.getConfig();
+        SiteConfig config = siteConfigMapper.selectConfig();
         if (config == null) {
-            throw new BusinessException("站点配置不存在");
+            throw new BusinessException(HttpStatus.NOT_FOUND, "站点配置不存在");
         }
         return config;
     }

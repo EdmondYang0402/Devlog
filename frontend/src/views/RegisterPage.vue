@@ -66,7 +66,7 @@ const register = async () => {
 
         // 开发日志只记录字段名和非敏感标识，严禁输出密码。
         if (registerDebugEnabled) {
-            console.log('[register] request POST /api/user/register', {
+            console.log('[register] request POST /api/users/register', {
                 fields: Object.keys(payload),
                 username: payload.username,
                 email: payload.email
@@ -114,7 +114,6 @@ const register = async () => {
         <canvas id="bg-canvas" class="bg-canvas"></canvas>
         <div class="card">
             <div class="logo">
-                <span class="logo-mark">✦</span>
                 <span class="logo-title">Hathaway's Blog</span>
                 <p class="logo-sub">{{ t('auth.createAccount') }}</p>
             </div>

@@ -25,17 +25,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(jwtInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns(
-                        "/user/login",
-                        "/user/register",
-                        "/user/resetPwd",
+                        "/users/login",
+                        "/users/register",
+                        "/users/resetPwd",
                         "/error",
-                        "/article/**",
+                        "/articles/**",
                         "/media-reviews/**",
-                        "/category",
+                        "/categories",
                         "/tags",
-                        "/comment/article/**",
+                        "/comments/articles/**",
                         "/site/profile",
-                        "/site/backgrounds",
+                        "/site-backgrounds",
                         "/projects/**",
                         "/uploads/**",
                         "/statistics/profile"

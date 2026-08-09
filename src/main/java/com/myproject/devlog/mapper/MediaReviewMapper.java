@@ -41,7 +41,7 @@ public interface MediaReviewMapper {
                 finished_date = #{finishedDate}
             WHERE id = #{id}
             """)
-    int update(MediaReview mediaReview);
+    int updateById(MediaReview mediaReview);
 
     @Delete("DELETE FROM media_review WHERE id = #{id}")
     int deleteById(Long id);
@@ -67,7 +67,7 @@ public interface MediaReviewMapper {
             LIMIT #{offset}, #{size}
             </script>
             """)
-    List<MediaReview> adminPage(
+    List<MediaReview> selectAdminPage(
             @Param("offset") Integer offset,
             @Param("size") Integer size,
             @Param("title") String title,
@@ -91,7 +91,7 @@ public interface MediaReviewMapper {
             </where>
             </script>
             """)
-    long adminCount(
+    long countAdmin(
             @Param("title") String title,
             @Param("mediaType") Integer mediaType,
             @Param("status") Integer status
@@ -128,7 +128,7 @@ public interface MediaReviewMapper {
             LIMIT #{offset}, #{size}
             </script>
             """)
-    List<MediaReview> frontPage(
+    List<MediaReview> selectFrontPage(
             @Param("offset") Integer offset,
             @Param("size") Integer size,
             @Param("mediaType") Integer mediaType,
@@ -145,5 +145,5 @@ public interface MediaReviewMapper {
             </where>
             </script>
             """)
-    long frontCount(@Param("mediaType") Integer mediaType);
+    long countFront(@Param("mediaType") Integer mediaType);
 }

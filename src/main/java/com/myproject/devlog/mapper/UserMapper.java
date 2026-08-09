@@ -10,11 +10,11 @@ import org.apache.ibatis.annotations.Update;
 public interface UserMapper {
 
     @Select("select * from user where id =#{userid}")
-    User getById(Long userid);
+    User selectById(Long userid);
 
     @Insert("INSERT INTO user (username, email, password, avatar, bio, role, status, create_time, update_time) VALUES " +
             "(#{username}, #{email}, #{password}, #{avatar}, #{bio}, #{role}, #{status}, NOW(), NOW())")
-    void insert(User user);
+    int insert(User user);
 
     @Update({
             "<script>",
@@ -32,11 +32,11 @@ public interface UserMapper {
             "WHERE id = #{id}",
             "</script>"
     })
-    void update(User user);
+    int updateById(User user);
 
     @Select("select * from user where username =#{username}")
-    User getByUsername(String username);
+    User selectByUsername(String username);
 
     @Select("select * from user where email =#{email}")
-    User getByEmail(String email);
+    User selectByEmail(String email);
 }

@@ -16,9 +16,9 @@ public interface SiteBackgroundService {
 
     void delete(Long id);
 
-    SiteBackgroundAdminVO getAdminDetail(Long id);
+    SiteBackgroundAdminVO getAdminById(Long id);
 
-    PageResult<SiteBackgroundAdminVO> adminPage(SiteBackgroundPageQueryDTO query);
+    PageResult<SiteBackgroundAdminVO> pageAdmin(SiteBackgroundPageQueryDTO query);
 
-    List<SiteBackgroundPublicVO> getEnabledBackgrounds();
+    List<SiteBackgroundPublicVO> listEnabled();
 }

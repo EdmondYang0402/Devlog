@@ -73,6 +73,8 @@ docker compose up -d --build
 
 `database/init/00-core-schema.sql` 与 `database/` 下的模块 SQL 会按 Compose 中指定的顺序挂载到 MySQL 的 `/docker-entrypoint-initdb.d/`。它们只在 `mysql_data` 数据卷首次创建时执行，不会覆盖已有数据。
 
+已有数据库升级分类标签关联功能时，需要手动执行 `database/category_tag.sql`；重新构建容器不会对已有 `mysql_data` 自动补跑初始化脚本。
+
 `database/article_time_columns_migration.sql` 是旧数据库列名迁移脚本，不参与全新数据库初始化；仅在旧库确实存在 `createTime`、`updateTime` 列时手工执行。
 
 ## MySQL 备份与恢复
@@ -109,7 +111,7 @@ docker compose exec -T mysql sh -c \
 
 ## 请求链路
 
-浏览器请求 `/api/user/login`，Nginx 的 `/api/` 代理会去掉 `/api` 前缀并向 `backend:8080/user/login` 转发。Vue Router 的非静态资源路径会回退到 `index.html`。
+浏览器请求 `/api/users/login`，Nginx 的 `/api/` 代理会去掉 `/api` 前缀并向 `backend:8080/users/login` 转发。Vue Router 的非静态资源路径会回退到 `index.html`。
 
 图片和头像写入后端 `/app/uploads`，并由 Docker `upload_data` 卷持久化。浏览器通过 `/uploads/...` 访问，Nginx 将该路径代理到 Spring 静态资源映射。
 

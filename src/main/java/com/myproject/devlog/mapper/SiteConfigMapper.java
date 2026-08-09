@@ -17,7 +17,7 @@ public interface SiteConfigMapper {
                    create_time AS createTime, update_time AS updateTime
             FROM site_config WHERE id = 1
             """)
-    SiteConfig getConfig();
+    SiteConfig selectConfig();
 
     @Insert("""
             INSERT INTO site_config
@@ -35,5 +35,5 @@ public interface SiteConfigMapper {
                 announcement = #{announcement}, github_url = #{githubUrl}, gitee_url = #{giteeUrl}
             WHERE id = 1
             """)
-    int update(SiteConfig config);
+    int updateById(SiteConfig config);
 }

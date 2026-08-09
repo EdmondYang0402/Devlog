@@ -4,7 +4,6 @@ import com.myproject.devlog.common.BusinessException;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,35 +16,18 @@ class ProjectValidatorTests {
     private final ProjectValidator validator = new ProjectValidator();
 
     @Test
-    void nameRulesCoverNullBlankAndBoundaries() {
-        assertThrows(BusinessException.class, () -> validator.normalizeName(null));
-        assertThrows(BusinessException.class, () -> validator.normalizeName("   "));
-        assertEquals("a".repeat(100), validator.normalizeName("a".repeat(100)));
-        assertThrows(BusinessException.class, () -> validator.normalizeName("a".repeat(101)));
+    void requiredTextIsNormalizedAfterDtoValidation() {
+        assertEquals("DevLog", validator.normalizeName("  DevLog  "));
+        assertEquals("项目简介", validator.normalizeSummary("  项目简介  "));
     }
 
     @Test
-    void summaryRulesCoverBlankAndBoundaries() {
-        assertThrows(BusinessException.class, () -> validator.normalizeSummary(" "));
-        assertEquals("a".repeat(300), validator.normalizeSummary("a".repeat(300)));
-        assertThrows(BusinessException.class, () -> validator.normalizeSummary("a".repeat(301)));
-    }
-
-    @Test
-    void statusAllowsOnlyZeroThroughFourAndRejectsNull() {
-        assertThrows(BusinessException.class, () -> validator.validateStatus(null));
-        assertThrows(BusinessException.class, () -> validator.validateStatus(-1));
-        assertDoesNotThrow(() -> validator.validateStatus(0));
-        assertDoesNotThrow(() -> validator.validateStatus(4));
-        assertThrows(BusinessException.class, () -> validator.validateStatus(5));
-    }
-
-    @Test
-    void featuredDefaultsToZeroAndAllowsOnlyBinaryValues() {
+    void optionalNumbersOnlyApplyDefaultsAfterDtoValidation() {
         assertEquals(0, validator.normalizeFeatured(null));
         assertEquals(0, validator.normalizeFeatured(0));
         assertEquals(1, validator.normalizeFeatured(1));
-        assertThrows(BusinessException.class, () -> validator.normalizeFeatured(2));
+        assertEquals(0, validator.normalizeSortOrder(null));
+        assertEquals(12, validator.normalizeSortOrder(12));
     }
 
     @Test
@@ -77,13 +59,9 @@ class ProjectValidatorTests {
     }
 
     @Test
-    void techStackRejectsTooManyItemsAndOverlongItem() {
-        List<String> tooMany = new ArrayList<>();
-        for (int index = 0; index < 21; index++) {
-            tooMany.add("tech-" + index);
-        }
-        assertThrows(BusinessException.class, () -> validator.normalizeTechStack(tooMany));
+    void serializedTechStackStillHonorsDatabaseCapacity() {
+        assertDoesNotThrow(() -> validator.validateSerializedTechStack("a".repeat(1000)));
         assertThrows(BusinessException.class,
-                () -> validator.normalizeTechStack(List.of("a".repeat(51))));
+                () -> validator.validateSerializedTechStack("a".repeat(1001)));
     }
 }

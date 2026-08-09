@@ -16,7 +16,8 @@ public class SiteConfigUpdateDTO {
     private String heroSubtitle;
 
     @Size(max = 8, message = "展示关键词最多8个")
-    private List<String> heroKeywords;
+    private List<@NotBlank(message = "展示关键词不能为空")
+            @Size(max = 30, message = "每个展示关键词不能超过30个字符") String> heroKeywords;
 
     @NotBlank(message = "博主展示名称不能为空")
     @Size(max = 50, message = "博主展示名称不能超过50个字符")

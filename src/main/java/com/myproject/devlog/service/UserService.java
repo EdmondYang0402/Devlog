@@ -17,6 +17,8 @@ public interface UserService {
 
     UserInfoVO getInfo(Long id);
 
+    UserInfoVO getCurrentUserInfo();
+
     UserInfoVO updateProfile(UpdateUserDTO dto);
 
     void changePassword(ChangePasswordDTO dto);

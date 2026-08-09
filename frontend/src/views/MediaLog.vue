@@ -1,55 +1,61 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getMediaReviewPage } from '@/api/mediaReview.js'
-import { mediaTypeOptions } from '@/constants/mediaReview.js'
-import MediaReviewCard from '@/components/media/MediaReviewCard.vue'
-import MediaReviewTimeline from '@/components/media/MediaReviewTimeline.vue'
+import { mediaArchiveSections } from '@/constants/mediaReview.js'
+import { useDisclosureSet } from '@/composables/useDisclosureSet.js'
+import MediaCategoryIcon from '@/components/media/MediaCategoryIcon.vue'
+import MediaReviewSection from '@/components/media/MediaReviewSection.vue'
 
+const PAGE_SIZE = 100
 const { t } = useI18n()
 const records = ref([])
-const total = ref(0)
 const loading = ref(false)
 const error = ref('')
-const page = ref(1)
-const size = ref(12)
-const mediaType = ref('')
-const sort = ref('latest')
-const view = ref(localStorage.getItem('media-log-view') || 'timeline')
+const {
+  isExpanded,
+  toggle: toggleSection
+} = useDisclosureSet()
+
+const sections = computed(() => mediaArchiveSections.map(section => ({
+  ...section,
+  items: records.value.filter(item => Number(item.mediaType) === section.mediaType)
+})))
 
 const load = async () => {
   loading.value = true
   error.value = ''
   try {
-    const response = await getMediaReviewPage({
-      page: page.value,
-      size: size.value,
-      mediaType: mediaType.value === '' ? undefined : mediaType.value,
-      sort: sort.value
-    })
-    records.value = response.data?.records || []
-    total.value = response.data?.total || 0
+    const firstResponse = await getMediaReviewPage({ page: 1, size: PAGE_SIZE, sort: 'latest' })
+    const firstPage = firstResponse?.data || {}
+    const firstRecords = Array.isArray(firstPage.records) ? firstPage.records : []
+    const total = Number(firstPage.total ?? firstRecords.length)
+    const pageCount = Math.ceil(total / PAGE_SIZE)
+
+    if (pageCount <= 1) {
+      records.value = firstRecords
+      return
+    }
+
+    const remainingPages = await Promise.all(
+      Array.from({ length: pageCount - 1 }, (_, index) =>
+        getMediaReviewPage({ page: index + 2, size: PAGE_SIZE, sort: 'latest' })
+      )
+    )
+    records.value = [
+      ...firstRecords,
+      ...remainingPages.flatMap(response =>
+        Array.isArray(response?.data?.records) ? response.data.records : []
+      )
+    ]
   } catch (err) {
     records.value = []
-    total.value = 0
     error.value = err.response?.data?.message || t('media.loadFailed')
   } finally {
     loading.value = false
   }
 }
 
-const changeFilter = () => {
-  // 非第一页时交给 page watcher 发起唯一请求；第一页没有变化事件，才直接加载。
-  if (page.value === 1) load()
-  else page.value = 1
-}
-const changeView = next => {
-  // 时间轴和矩阵只切换展示组件，共用 records、筛选条件和分页状态，不重复请求。
-  view.value = next
-  localStorage.setItem('media-log-view', next)
-}
-
-watch(page, load)
 onMounted(load)
 </script>
 
@@ -61,64 +67,101 @@ onMounted(load)
       <p>{{ t('media.subtitle') }}</p>
     </header>
 
-    <section class="toolbar glass-panel" :aria-label="t('media.filters')">
-      <div class="type-filter">
-        <button :class="{ active: mediaType === '' }" @click="mediaType = ''; changeFilter()">{{ t('media.all') }}</button>
-        <button v-for="type in mediaTypeOptions" :key="type.value" :class="{ active: mediaType === type.value }" @click="mediaType = type.value; changeFilter()">
-          {{ t(`media.type.${type.key}`) }}
-        </button>
+    <div v-loading="loading" class="media-content" :aria-busy="loading">
+      <div v-if="error" class="state-card glass-panel error-state">
+        <i class="ti ti-cloud-off" aria-hidden="true"></i>
+        <p>{{ error }}</p>
+        <el-button plain @click="load">{{ t('common.retry') }}</el-button>
       </div>
-      <div class="toolbar-right">
-        <el-select v-model="sort" class="sort-select" :aria-label="t('media.sort')" @change="changeFilter">
-          <el-option :label="t('media.sortLatest')" value="latest" />
-          <el-option :label="t('media.sortRating')" value="rating" />
-        </el-select>
-        <div class="view-switch" :aria-label="t('media.viewMode')">
-          <button :class="{ active: view === 'timeline' }" @click="changeView('timeline')"><i class="ti ti-timeline"></i>{{ t('media.timeline') }}</button>
-          <button :class="{ active: view === 'grid' }" @click="changeView('grid')"><i class="ti ti-layout-grid"></i>{{ t('media.grid') }}</button>
+      <template v-else>
+        <div class="category-grid" :aria-label="t('media.section.label')">
+          <button
+            v-for="section in sections"
+            :key="section.key"
+            type="button"
+            class="category-card"
+            :class="{ 'is-active': isExpanded(section.key) }"
+            :aria-expanded="isExpanded(section.key)"
+            :aria-controls="`media-panel-${section.key}`"
+            @click="toggleSection(section.key)"
+          >
+            <MediaCategoryIcon :type="section.iconType" />
+            <span class="category-copy">
+              <strong>{{ t(section.titleKey) }}</strong>
+              <span>{{ t('media.section.archive') }}</span>
+            </span>
+            <span class="category-side">
+              <span class="category-count">{{ section.items.length }}</span>
+              <span class="category-chevron" aria-hidden="true"></span>
+            </span>
+          </button>
         </div>
-      </div>
-    </section>
 
-    <section v-loading="loading" class="media-content">
-      <div v-if="error" class="state-card error-state">
-        <p>{{ error }}</p><el-button plain @click="load">{{ t('common.retry') }}</el-button>
-      </div>
-      <div v-else-if="!loading && !records.length" class="state-card">
-        <i class="ti ti-books"></i><h2>{{ t('media.empty') }}</h2><p>{{ t('media.emptyHint') }}</p>
-      </div>
-      <Transition name="view-fade" mode="out-in">
-        <MediaReviewTimeline v-if="records.length && view === 'timeline'" :key="'timeline'" :items="records" />
-        <div v-else-if="records.length" :key="'grid'" class="media-grid">
-          <MediaReviewCard v-for="item in records" :key="item.id" :item="item" />
+        <div class="expanded-list">
+          <Transition
+            v-for="section in sections"
+            :key="section.key"
+            name="archive-expand"
+          >
+            <div
+              v-show="isExpanded(section.key)"
+              :id="`media-panel-${section.key}`"
+              class="expanded-panel"
+            >
+              <div class="expanded-inner">
+                <MediaReviewSection
+                  :section="section"
+                  :items="section.items"
+                />
+              </div>
+            </div>
+          </Transition>
         </div>
-      </Transition>
-    </section>
-
-    <el-pagination v-if="total > size" v-model:current-page="page" :page-size="size" :total="total" layout="prev, pager, next" class="pager" />
+      </template>
+    </div>
   </main>
 </template>
 
 <style scoped>
-.media-page { width:min(1180px,calc(100% - 40px)); margin:0 auto; padding:56px 0 72px; flex:1; }
-.page-head { max-width:720px; margin-bottom:22px; padding:24px 28px; }
+.media-page { width:min(920px,calc(100% - 40px)); margin:0 auto; padding:48px 0 76px; flex:1; }
+.page-head { max-width:720px; margin-bottom:38px; padding:24px 28px; background:rgba(245,245,250,.36); border-color:rgba(255,255,255,.34); }
 .eyebrow { color:var(--purple-400)!important; font-size:11px!important; letter-spacing:.16em; }
 .page-head h1 { margin:7px 0; font-size:clamp(30px,5vw,46px); font-weight:650; letter-spacing:-.035em; }
 .page-head>p { color:var(--text-2); font-size:14px; }
-.toolbar { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-bottom:28px; padding:10px; border-color:var(--glass-border); border-radius:16px; background:var(--glass-bg-soft); }
-.type-filter,.toolbar-right,.view-switch { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
-.toolbar button { padding:7px 12px; border:0; border-radius:9px; background:transparent; color:var(--text-2); cursor:pointer; font:inherit; font-size:12px; }
-.toolbar button.active { background:var(--purple-50); color:var(--purple-600); }
-.view-switch { padding-left:8px; border-left:1px solid var(--border); }
-.view-switch button { display:flex; align-items:center; gap:5px; }
-.sort-select { width:142px; }
-.media-content { min-height:260px; }
-.media-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:18px; }
-.state-card { display:grid; place-items:center; gap:7px; min-height:260px; padding:30px; border:1px dashed var(--border); border-radius:16px; color:var(--text-3); text-align:center; }
-.state-card i { color:var(--purple-200); font-size:38px; }.state-card h2{color:var(--text-2);font-size:17px}.state-card p{font-size:13px}
-.pager { justify-content:center; margin-top:32px; }
-.view-fade-enter-active,.view-fade-leave-active{transition:opacity .16s ease,transform .16s ease}.view-fade-enter-from{opacity:0;transform:translateY(4px)}.view-fade-leave-to{opacity:0}
-@media(max-width:1020px){.media-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.toolbar{align-items:flex-start;flex-direction:column}.toolbar-right{width:100%;justify-content:space-between}}
-@media(max-width:760px){.media-page{width:min(100% - 24px,680px);padding:36px 0 52px}.media-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.type-filter{width:100%}.toolbar-right{align-items:stretch;flex-direction:column}.sort-select{width:100%}.view-switch{border-left:0;padding-left:0}.view-switch button{flex:1;justify-content:center}}
-@media(max-width:400px){.media-grid{grid-template-columns:1fr 1fr}.media-page{width:calc(100% - 16px)}.toolbar{padding:8px}.toolbar button{padding:6px 9px}}
+.media-content { min-height:320px; }
+.category-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.category-card { position:relative; display:grid; min-width:0; min-height:104px; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:15px; overflow:hidden; padding:17px 18px; border:1px solid rgba(255,255,255,.38); border-radius:22px; background:rgba(245,245,250,.32); box-shadow:0 9px 24px rgba(30,24,50,.075); color:var(--text-1); font:inherit; text-align:left; cursor:pointer; -webkit-backdrop-filter:blur(14px) saturate(112%); backdrop-filter:blur(14px) saturate(112%); transition:transform .24s ease,border-color .24s ease,background-color .24s ease,box-shadow .24s ease; }
+.category-card::before { position:absolute; inset:auto -34px -46px auto; width:112px; height:112px; border-radius:50%; background:radial-gradient(circle,rgba(177,134,246,.2),transparent 68%); content:''; opacity:.36; transition:opacity .24s ease,transform .24s ease; }
+.category-card:hover { transform:translateY(-2px); border-color:rgba(255,255,255,.58); background:rgba(247,245,252,.43); box-shadow:0 14px 30px rgba(30,24,50,.105); }
+.category-card:focus-visible { outline:2px solid color-mix(in srgb,var(--purple-400) 76%,white); outline-offset:3px; }
+.category-card.is-active { border-color:rgba(167,135,241,.68); background:linear-gradient(135deg,rgba(244,239,255,.5),rgba(237,246,255,.36)); box-shadow:0 15px 35px rgba(92,72,151,.15),inset 0 0 0 1px rgba(255,255,255,.28); }
+.category-card.is-active::before { opacity:1; transform:scale(1.2); }
+.category-card.is-active .category-copy strong { color:var(--purple-700); }
+.category-card.is-active :deep(.category-icon) { filter:brightness(1.07) saturate(1.08); transform:scale(1.035); }
+.category-copy { display:flex; min-width:0; flex-direction:column; gap:5px; }
+.category-copy strong { overflow:hidden; color:var(--text-1); font-size:18px; font-weight:680; letter-spacing:-.015em; text-overflow:ellipsis; white-space:nowrap; transition:color .24s ease; }
+.category-copy>span { color:var(--text-3); font-size:11px; letter-spacing:.06em; }
+.category-side { position:relative; z-index:1; display:flex; align-items:center; gap:10px; }
+.category-count { display:grid; min-width:30px; height:26px; place-items:center; padding:0 9px; border:1px solid rgba(255,255,255,.34); border-radius:999px; background:rgba(127,119,221,.1); color:var(--purple-700); font-size:11px; font-weight:650; font-variant-numeric:tabular-nums; }
+.category-chevron { width:9px; height:9px; border-right:1.5px solid currentColor; border-bottom:1.5px solid currentColor; color:var(--text-3); transform:translateY(-2px) rotate(45deg); transition:transform .28s ease,color .24s ease; }
+.category-card.is-active .category-chevron { color:var(--purple-600); transform:translateY(2px) rotate(225deg); }
+.expanded-list { min-width:0; }
+.expanded-panel { display:grid; grid-template-rows:1fr; margin-top:18px; overflow:hidden; border:1px solid rgba(255,255,255,.34); border-radius:26px; background:rgba(245,245,250,.24); box-shadow:0 14px 34px rgba(30,24,50,.075); -webkit-backdrop-filter:blur(12px) saturate(110%); backdrop-filter:blur(12px) saturate(110%); transition:grid-template-rows .4s cubic-bezier(.22,1,.36,1),opacity .3s ease,transform .3s ease; }
+.expanded-inner { min-height:0; overflow:hidden; padding:22px; transition:padding .4s cubic-bezier(.22,1,.36,1); }
+.archive-expand-enter-from,.archive-expand-leave-to { grid-template-rows:0fr; opacity:0; transform:translateY(-8px); }
+.archive-expand-enter-from .expanded-inner,.archive-expand-leave-to .expanded-inner { padding-block:0; }
+.archive-expand-enter-to,.archive-expand-leave-from { grid-template-rows:1fr; opacity:1; transform:translateY(0); }
+.state-card { display:grid; min-height:260px; place-items:center; align-content:center; gap:9px; padding:30px; border-style:dashed; color:var(--text-3); text-align:center; }
+.state-card i { color:var(--purple-200); font-size:38px; }
+.state-card p { font-size:13px; }
+@media(max-width:820px){.media-page{width:min(100% - 28px,720px);padding:38px 0 58px}.page-head{margin-bottom:32px}}
+@media(max-width:560px){.media-page{width:calc(100% - 24px);padding:30px 0 48px}.page-head{margin-bottom:28px;padding:20px;border-radius:18px}.page-head>p{font-size:13px}.category-grid{gap:10px}.category-card{min-height:92px;gap:10px;padding:13px 12px;border-radius:18px}.category-card :deep(.category-icon){width:44px;height:44px;border-radius:15px}.category-copy strong{font-size:16px}.category-copy>span{display:none}.category-side{gap:7px}.category-count{min-width:26px;height:23px;padding:0 7px}.category-chevron{width:7px;height:7px}.expanded-panel{margin-top:12px;border-radius:20px}.expanded-inner{padding:14px}}
+@media(max-width:360px){.category-grid{grid-template-columns:minmax(0,1fr)}}
+:global(html[data-theme='dark']) .category-card { border-color:rgba(226,219,255,.16); background:rgba(21,24,43,.36); box-shadow:0 12px 30px rgba(6,8,20,.16); }
+:global(html[data-theme='dark']) .category-card:hover { border-color:rgba(211,195,255,.31); background:rgba(36,36,66,.46); }
+:global(html[data-theme='dark']) .category-card.is-active { border-color:rgba(184,153,255,.58); background:linear-gradient(135deg,rgba(77,62,119,.48),rgba(44,66,104,.38)); }
+:global(html[data-theme='dark']) .category-card.is-active .category-copy strong { color:#d9c9ff; }
+:global(html[data-theme='dark']) .category-count { border-color:rgba(226,219,255,.14); background:rgba(165,132,239,.17); color:#d5c2ff; }
+:global(html[data-theme='dark']) .expanded-panel { border-color:rgba(226,219,255,.14); background:rgba(18,22,40,.27); box-shadow:0 16px 38px rgba(5,7,18,.18); }
+@media(prefers-reduced-motion:reduce){.category-card,.category-card::before,.category-chevron,.expanded-panel,.expanded-inner{transition:none}.category-card:hover{transform:none}}
 </style>

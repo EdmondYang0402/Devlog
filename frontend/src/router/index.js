@@ -80,7 +80,13 @@ const routes = [
     component: () => import('@/views/admin/AdminLayout.vue'),
     meta: { requiresAuth: true, requiresAdmin: true },
     children: [
-      { path: '', redirect: '/admin/articles' },
+      { path: '', redirect: '/admin/dashboard' },
+      {
+        path: 'dashboard',
+        name: 'AdminDashboard',
+        component: () => import('@/views/admin/AdminDashboard.vue'),
+        meta: { title: '后台管理', requiresAuth: true }
+      },
       {
         path: 'articles',
         component: () => import('@/views/admin/ArticleList.vue'),

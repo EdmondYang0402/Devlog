@@ -8,6 +8,7 @@ import com.myproject.devlog.pojo.dto.ProjectUpdateDTO;
 import com.myproject.devlog.pojo.vo.ProjectDetailVO;
 import com.myproject.devlog.pojo.vo.ProjectListVO;
 import com.myproject.devlog.service.ProjectService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -29,22 +30,22 @@ public class AdminProjectController {
     }
 
     @GetMapping
-    public Result<PageResult<ProjectListVO>> page(@ModelAttribute ProjectPageQueryDTO query) {
-        return Result.success(projectService.adminPage(query));
+    public Result<PageResult<ProjectListVO>> page(@Valid @ModelAttribute ProjectPageQueryDTO query) {
+        return Result.success(projectService.pageAdmin(query));
     }
 
     @GetMapping("/{id}")
     public Result<ProjectDetailVO> detail(@PathVariable Long id) {
-        return Result.success(projectService.getAdminDetail(id));
+        return Result.success(projectService.getAdminById(id));
     }
 
     @PostMapping
-    public Result<Long> create(@RequestBody ProjectCreateDTO dto) {
+    public Result<Long> create(@Valid @RequestBody ProjectCreateDTO dto) {
         return Result.success(projectService.create(dto));
     }
 
     @PutMapping("/{id}")
-    public Result<Void> update(@PathVariable Long id, @RequestBody ProjectUpdateDTO dto) {
+    public Result<Void> update(@PathVariable Long id, @Valid @RequestBody ProjectUpdateDTO dto) {
         projectService.update(id, dto);
         return Result.success();
     }

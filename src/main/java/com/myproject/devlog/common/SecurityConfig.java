@@ -29,9 +29,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
-                                "/user/login",
-                                "/user/register",
-                                "/user/resetPwd",
+                                "/users/login",
+                                "/users/register",
+                                "/users/resetPwd",
                                 "/error"
                         ).permitAll()
                         // JWT 与管理员鉴权由现有 MVC Interceptor 执行。

@@ -1,8 +1,10 @@
 package com.myproject.devlog.service.impl;
 
+import com.myproject.devlog.common.BusinessException;
 import com.myproject.devlog.service.LoginSessionService;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
 
 import java.time.Duration;
 import java.util.UUID;
@@ -27,7 +29,7 @@ public class LoginSessionServiceImpl implements LoginSessionService {
     @Override
     public String createSession(Long userId) {
         if (userId == null) {
-            throw new IllegalArgumentException("userId must not be null");
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "用户 ID 不能为空");
         }
 
         String sessionId = UUID.randomUUID().toString();

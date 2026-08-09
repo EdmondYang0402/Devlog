@@ -1,5 +1,6 @@
 package com.myproject.devlog.utils;
 
+import com.myproject.devlog.pojo.dto.UpdateUserDTO;
 import com.myproject.devlog.pojo.entity.User;
 import com.myproject.devlog.pojo.vo.UserInfoVO;
 import org.springframework.beans.BeanUtils;
@@ -17,12 +18,15 @@ public class UserConverter {
         return vo;
     }
 
-    public User toUser(Object source) {
-        if (source == null) {
+    /** 资料更新只允许写入普通用户资料字段，账号身份和安全字段不参与映射。 */
+    public User fromProfileUpdateDTO(UpdateUserDTO dto) {
+        if (dto == null) {
             return null;
         }
         User user = new User();
-        BeanUtils.copyProperties(source, user);
+        user.setAvatar(dto.getAvatar());
+        user.setBio(dto.getBio());
+        user.setEmail(dto.getEmail());
         return user;
     }
 }

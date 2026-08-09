@@ -17,26 +17,26 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @PostMapping("/admin/category")
+    @PostMapping("/admin/categories")
     public Result<Void> create(@Valid @RequestBody CategoryCreateDTO dto) {
         categoryService.create(dto);
         return Result.success();
     }
 
-    @PutMapping("/admin/category/{id}")
+    @PutMapping("/admin/categories/{id}")
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody CategoryUpdateDTO dto) {
         categoryService.update(id, dto);
         return Result.success();
     }
 
-    @DeleteMapping("/admin/category/{id}")
+    @DeleteMapping("/admin/categories/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         categoryService.delete(id);
         return Result.success();
     }
 
-    @GetMapping({"/admin/category", "/category"})
+    @GetMapping({"/admin/categories", "/categories"})
     public Result<List<CategoryVO>> listAll() {
-        return Result.success(categoryService.listAll());
+        return Result.success(categoryService.list());
     }
 }

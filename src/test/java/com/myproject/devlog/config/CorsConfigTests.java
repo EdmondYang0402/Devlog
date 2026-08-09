@@ -16,7 +16,7 @@ class CorsConfigTests {
                 new CorsConfig(
                         "http://localhost:5173,http://localhost:8088,https://*.trycloudflare.com")
                         .corsConfigurationSource();
-        MockHttpServletRequest request = new MockHttpServletRequest("OPTIONS", "/user/register");
+        MockHttpServletRequest request = new MockHttpServletRequest("OPTIONS", "/users/register");
         CorsConfiguration config = source.getCorsConfiguration(request);
 
         assertNotNull(config);

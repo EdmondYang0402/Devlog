@@ -1,0 +1,261 @@
+.admin-shell {
+  --admin-bg: #101321;
+  --admin-overlay: rgba(9, 11, 27, .46);
+  --admin-panel: rgba(29, 28, 50, .46);
+  --admin-panel-strong: rgba(36, 33, 57, .56);
+  --admin-panel-hover: rgba(42, 38, 65, .54);
+  --admin-panel-fallback: rgba(26, 25, 45, .86);
+  --admin-border: rgba(255, 255, 255, .15);
+  --admin-border-strong: rgba(199, 181, 255, .27);
+  --admin-shadow: 0 10px 26px rgba(2, 4, 14, .16);
+  --admin-text-primary: rgba(255, 255, 255, .93);
+  --admin-text-secondary: rgba(236, 234, 248, .66);
+  --admin-text-muted: rgba(225, 222, 240, .43);
+  --admin-accent: #aa94ed;
+  --admin-accent-soft: rgba(170, 148, 237, .16);
+  --admin-pink: #d78caf;
+  --admin-blue: #78a5e5;
+  --admin-warning: #dfaf65;
+  --admin-success: #68c59b;
+  --admin-danger: #df7480;
+  --admin-radius: 18px;
+  --admin-radius-sm: 12px;
+  --admin-blur: 12px;
+  --admin-sidebar-width: 236px;
+  --admin-sidebar-collapsed: 78px;
+  --admin-header-height: 76px;
+  --admin-sidebar-bg: rgba(18, 19, 36, .43);
+  --admin-header-bg: rgba(17, 18, 34, .37);
+  --admin-backdrop-overlay: linear-gradient(115deg, var(--admin-overlay) 5%, rgba(14, 15, 33, .36) 52%, rgba(31, 21, 43, .42) 100%);
+
+  /* Existing admin pages already consume these variables. */
+  --surface-0: transparent;
+  --surface-1: rgba(255, 255, 255, .035);
+  --surface-2: rgba(34, 32, 56, .48);
+  --bg-card: rgba(34, 32, 56, .48);
+  --text-primary: var(--admin-text-primary);
+  --text-secondary: var(--admin-text-secondary);
+  --text-muted: var(--admin-text-muted);
+  --text-1: var(--admin-text-primary);
+  --text-2: var(--admin-text-secondary);
+  --text-3: var(--admin-text-muted);
+  --border: var(--admin-border);
+  --border-h: var(--admin-border-strong);
+  --accent-color: var(--admin-accent);
+  color: var(--admin-text-primary);
+  color-scheme: dark;
+}
+
+html[data-theme='light'] .admin-shell {
+  --admin-bg: #171424;
+  --admin-overlay: rgba(21, 16, 35, .34);
+  --admin-panel: rgba(49, 40, 65, .4);
+  --admin-panel-strong: rgba(57, 46, 74, .5);
+  --admin-panel-hover: rgba(66, 51, 83, .5);
+  --admin-panel-fallback: rgba(39, 32, 54, .84);
+  --admin-border: rgba(255, 245, 255, .16);
+  --admin-border-strong: rgba(218, 186, 255, .29);
+  --admin-text-primary: rgba(255, 252, 255, .94);
+  --admin-text-secondary: rgba(246, 236, 249, .7);
+  --admin-text-muted: rgba(238, 223, 242, .47);
+  --admin-accent: #b39ced;
+  --admin-accent-soft: rgba(179, 156, 237, .13);
+  --admin-sidebar-bg: rgba(35, 28, 49, .38);
+  --admin-header-bg: rgba(35, 28, 49, .32);
+  --admin-backdrop-overlay: linear-gradient(115deg, var(--admin-overlay), rgba(32, 24, 45, .3) 50%, rgba(48, 30, 51, .36));
+  --surface-1: rgba(255, 255, 255, .04);
+  --surface-2: rgba(49, 40, 65, .42);
+  --bg-card: rgba(49, 40, 65, .42);
+  color-scheme: dark;
+}
+
+.admin-panel {
+  background: var(--admin-panel);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  -webkit-backdrop-filter: blur(var(--admin-blur));
+  backdrop-filter: blur(var(--admin-blur));
+  box-shadow: var(--admin-shadow);
+  transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.admin-panel:hover {
+  background: var(--admin-panel-hover);
+  border-color: var(--admin-border-strong);
+}
+
+.admin-shell :where(button, a, input, select, textarea) {
+  font: inherit;
+}
+
+.admin-shell :where(button, a) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-shell :where(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--admin-accent) 78%, white);
+  outline-offset: 2px;
+}
+
+.admin-shell .content > :not(.admin-dashboard) {
+  min-width: 0;
+}
+
+.admin-shell :where(.search-bar, .table-wrap, .pagination, .form-card, .tags-wrap) {
+  border-color: var(--admin-border);
+  box-shadow: 0 8px 20px rgba(4, 5, 14, .11);
+}
+
+.admin-shell :where(.s-input, .s-select, input, textarea, select) {
+  color-scheme: dark;
+}
+
+.admin-shell .table-wrap {
+  scrollbar-color: rgba(170, 148, 237, .38) transparent;
+}
+
+.admin-shell .el-table {
+  --el-table-bg-color: transparent;
+  --el-table-tr-bg-color: transparent;
+  --el-table-header-bg-color: rgba(255, 255, 255, .045);
+  --el-table-row-hover-bg-color: rgba(255, 255, 255, .055);
+  --el-table-border-color: var(--admin-border);
+  --el-table-text-color: var(--admin-text-secondary);
+  --el-table-header-text-color: var(--admin-text-muted);
+  background: transparent;
+}
+
+.admin-shell :is(.el-input__wrapper, .el-select__wrapper, .el-textarea__inner) {
+  background: rgba(255, 255, 255, .035);
+  box-shadow: inset 0 0 0 1px var(--admin-border);
+  color: var(--admin-text-primary);
+}
+
+.admin-shell :is(.el-input__wrapper, .el-select__wrapper).is-focus,
+.admin-shell .el-input__wrapper:focus-within,
+.admin-shell .el-textarea__inner:focus {
+  box-shadow: inset 0 0 0 1px var(--admin-border-strong), 0 0 0 3px rgba(170, 148, 237, .08);
+}
+
+.admin-shell :is(.el-button, .el-pagination button, .el-pager li) {
+  border-color: var(--admin-border);
+  background: rgba(255, 255, 255, .035);
+  color: var(--admin-text-secondary);
+  box-shadow: none;
+}
+
+.admin-shell :is(.el-button, .el-pagination button, .el-pager li):hover {
+  border-color: var(--admin-border-strong);
+  background: rgba(255, 255, 255, .065);
+  color: var(--admin-text-primary);
+}
+
+.admin-shell .el-button--primary {
+  border-color: rgba(187, 165, 249, .28);
+  background: rgba(170, 148, 237, .16);
+  color: #e9e0ff;
+}
+
+.admin-shell .el-button--primary:hover {
+  border-color: rgba(203, 185, 255, .38);
+  background: rgba(170, 148, 237, .24);
+}
+
+.admin-shell .el-button--danger {
+  border-color: rgba(223, 116, 128, .28);
+  background: rgba(223, 116, 128, .11);
+  color: #f1a0a8;
+}
+
+.admin-shell .el-tag {
+  --el-tag-bg-color: rgba(255, 255, 255, .035);
+  --el-tag-border-color: var(--admin-border);
+  --el-tag-text-color: var(--admin-text-secondary);
+}
+
+.admin-shell .el-card,
+.admin-shell .el-form {
+  --el-card-bg-color: var(--admin-panel);
+  background: transparent;
+}
+
+body.admin-mode {
+  --admin-popover-bg: rgba(31, 29, 51, .78);
+  --admin-popover-border: rgba(255, 255, 255, .15);
+  --admin-popover-shadow: 0 12px 30px rgba(2, 4, 14, .2);
+}
+
+.admin-mode .el-popper,
+.admin-mode .el-dropdown__popper,
+.admin-mode .el-select__popper,
+.admin-mode .el-message-box,
+.admin-mode .el-dialog {
+  --el-bg-color: var(--admin-popover-bg);
+  --el-bg-color-overlay: var(--admin-popover-bg);
+  --el-fill-color-light: rgba(255, 255, 255, .055);
+  --el-fill-color-lighter: rgba(255, 255, 255, .035);
+  --el-border-color: rgba(255, 255, 255, .13);
+  --el-border-color-light: rgba(255, 255, 255, .1);
+  --el-text-color-primary: rgba(255, 255, 255, .93);
+  --el-text-color-regular: rgba(236, 234, 248, .72);
+  --el-color-primary: #aa94ed;
+  border-color: var(--admin-popover-border);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--admin-popover-shadow);
+}
+
+.admin-mode :is(.el-dialog, .el-message-box) {
+  border: 1px solid var(--admin-popover-border);
+  background: var(--admin-popover-bg);
+}
+
+.admin-mode .el-dropdown-menu {
+  border: 0;
+  background: transparent;
+}
+
+.admin-mode .el-dropdown-menu__item:hover {
+  background: rgba(255, 255, 255, .05);
+}
+
+.admin-mode .el-overlay {
+  background: rgba(7, 8, 18, .48);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+html[data-theme='light'] body.admin-mode {
+  --admin-popover-bg: rgba(52, 42, 68, .76);
+  --admin-popover-border: rgba(255, 245, 255, .17);
+}
+
+html[data-theme='light'] .admin-mode .el-overlay {
+  background: rgba(18, 12, 28, .4);
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .admin-panel,
+  .admin-sidebar,
+  .admin-header {
+    background: var(--admin-panel-fallback);
+  }
+}
+
+@media (max-width: 720px) {
+  .admin-shell {
+    --admin-header-height: 68px;
+    --admin-radius: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-shell *,
+  .admin-shell *::before,
+  .admin-shell *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

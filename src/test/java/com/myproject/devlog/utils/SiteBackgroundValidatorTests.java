@@ -11,9 +11,7 @@ class SiteBackgroundValidatorTests {
     private final SiteBackgroundValidator validator = new SiteBackgroundValidator();
 
     @Test
-    void imageUrlIsRequiredAndMustUseHttpScheme() {
-        assertThrows(BusinessException.class, () -> validator.normalizeImageUrl(null));
-        assertThrows(BusinessException.class, () -> validator.normalizeImageUrl("   "));
+    void imageUrlMustUseSupportedSchemeAfterDtoValidation() {
         assertThrows(BusinessException.class, () -> validator.normalizeImageUrl("ftp://cdn.example.com/a.jpg"));
         assertThrows(BusinessException.class, () -> validator.normalizeImageUrl("/images/a.jpg"));
         assertEquals("/uploads/site/background/a.jpg",
@@ -22,36 +20,19 @@ class SiteBackgroundValidatorTests {
                 validator.normalizeImageUrl(" https://cdn.example.com/a.jpg "));
     }
 
-    @Test
-    void imageUrlRejectsValuesOverDatabaseLength() {
-        String url = "https://example.com/" + "a".repeat(482);
-        assertThrows(BusinessException.class, () -> validator.normalizeImageUrl(url));
-    }
-
-    @Test
-    void titleIsOptionalAndHonorsHundredCharacterBoundary() {
+    void titleIsOptionalAndNormalized() {
         assertNull(validator.normalizeTitle(null));
         assertNull(validator.normalizeTitle("   "));
-        assertEquals("a".repeat(100), validator.normalizeTitle("a".repeat(100)));
-        assertThrows(BusinessException.class, () -> validator.normalizeTitle("a".repeat(101)));
+        assertEquals("背景", validator.normalizeTitle("  背景  "));
     }
 
     @Test
-    void enabledDefaultsToOneAndOnlyAcceptsBinaryValues() {
+    void optionalNumbersOnlyApplyDefaultsAfterDtoValidation() {
         assertEquals(1, validator.normalizeEnabled(null));
         assertEquals(0, validator.normalizeEnabled(0));
         assertEquals(1, validator.normalizeEnabled(1));
-        BusinessException exception = assertThrows(BusinessException.class,
-                () -> validator.normalizeEnabled(2));
-        assertEquals("启用状态不合法", exception.getMessage());
-    }
-
-    @Test
-    void sortOrderUsesDefaultAndAllowsInclusiveBoundaries() {
         assertEquals(0, validator.normalizeSortOrder(null));
         assertEquals(-100000, validator.normalizeSortOrder(-100000));
         assertEquals(100000, validator.normalizeSortOrder(100000));
-        assertThrows(BusinessException.class, () -> validator.normalizeSortOrder(-100001));
-        assertThrows(BusinessException.class, () -> validator.normalizeSortOrder(100001));
     }
 }

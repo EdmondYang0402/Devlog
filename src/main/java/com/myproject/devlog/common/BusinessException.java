@@ -2,6 +2,8 @@ package com.myproject.devlog.common;
 
 import org.springframework.http.HttpStatus;
 
+import java.util.Objects;
+
 public class BusinessException extends RuntimeException {
     private final HttpStatus status;
 
@@ -11,7 +13,7 @@ public class BusinessException extends RuntimeException {
 
     public BusinessException(HttpStatus status, String message) {
         super(message);
-        this.status = status;
+        this.status = Objects.requireNonNull(status, "status must not be null");
     }
 
     public HttpStatus getStatus() {

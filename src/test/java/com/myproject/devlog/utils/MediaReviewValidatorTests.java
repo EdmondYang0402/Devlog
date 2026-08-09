@@ -12,11 +12,8 @@ class MediaReviewValidatorTests {
     private final MediaReviewValidator validator = new MediaReviewValidator();
 
     @Test
-    void titleRulesCoverNullBlankAndBoundaries() {
-        assertThrows(BusinessException.class, () -> validator.normalizeTitle(null));
-        assertThrows(BusinessException.class, () -> validator.normalizeTitle("   "));
-        assertEquals("a".repeat(200), validator.normalizeTitle("a".repeat(200)));
-        assertThrows(BusinessException.class, () -> validator.normalizeTitle("a".repeat(201)));
+    void titleIsNormalizedAfterDtoValidation() {
+        assertEquals("作品", validator.normalizeTitle("  作品  "));
     }
 
     @Test
@@ -30,20 +27,9 @@ class MediaReviewValidatorTests {
     }
 
     @Test
-    void ratingAllowsNullAndInclusiveOneToTenOnly() {
-        assertNull(validator.validateRating(null));
-        assertEquals(1, validator.validateRating(1));
-        assertEquals(10, validator.validateRating(10));
-        assertThrows(BusinessException.class, () -> validator.validateRating(0));
-        assertThrows(BusinessException.class, () -> validator.validateRating(11));
-    }
-
-    @Test
-    void optionalTextIsNormalizedAndLengthChecked() {
+    void optionalTextIsNormalized() {
         assertNull(validator.normalizeShortReview("   "));
         assertEquals("短评", validator.normalizeShortReview("  短评  "));
-        assertThrows(BusinessException.class,
-                () -> validator.normalizeShortReview("a".repeat(501)));
     }
 
     @Test

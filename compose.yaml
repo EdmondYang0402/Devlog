@@ -72,6 +72,7 @@ services:
       - mysql_data:/var/lib/mysql
       - ./database/init/00-core-schema.sql:/docker-entrypoint-initdb.d/00-core-schema.sql:ro
       - ./database/tag_module.sql:/docker-entrypoint-initdb.d/10-tag-module.sql:ro
+      - ./database/category_tag.sql:/docker-entrypoint-initdb.d/15-category-tag.sql:ro
       - ./database/project_showcase.sql:/docker-entrypoint-initdb.d/20-project-showcase.sql:ro
       - ./database/media_review.sql:/docker-entrypoint-initdb.d/30-media-review.sql:ro
       - ./database/site_config.sql:/docker-entrypoint-initdb.d/40-site-config.sql:ro

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/admin/article")
+@RequestMapping("/admin/articles")
 public class AdminArticleController {
     private final AdminArticleService adminArticleService;
 
@@ -43,7 +43,7 @@ public class AdminArticleController {
 
     @GetMapping("/{id}")
     public Result<ArticleDetailVO> getDetail(@PathVariable Long id) {
-        return Result.success(adminArticleService.getDetail(id));
+        return Result.success(adminArticleService.getById(id));
     }
 
     // 删除文章

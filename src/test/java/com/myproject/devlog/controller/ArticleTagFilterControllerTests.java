@@ -18,11 +18,11 @@ class ArticleTagFilterControllerTests {
     @Test
     void repeatedTagIdsBindToLongList() throws Exception {
         ArticleService service = mock(ArticleService.class);
-        when(service.getFrontList(1, 10, 2L, "notes", "JWT", List.of(3L, 5L)))
+        when(service.page(1, 10, 2L, "notes", "JWT", List.of(3L, 5L)))
                 .thenReturn(new PageResult<>(List.of(), 0));
         MockMvc mvc = MockMvcBuilders.standaloneSetup(new ArticleController(service)).build();
 
-        mvc.perform(get("/article/list")
+        mvc.perform(get("/articles")
                         .param("page", "1")
                         .param("size", "10")
                         .param("categoryId", "2")
@@ -31,6 +31,6 @@ class ArticleTagFilterControllerTests {
                         .param("tagIds", "3", "5"))
                 .andExpect(status().isOk());
 
-        verify(service).getFrontList(1, 10, 2L, "notes", "JWT", List.of(3L, 5L));
+        verify(service).page(1, 10, 2L, "notes", "JWT", List.of(3L, 5L));
     }
 }

@@ -17,9 +17,9 @@ public class MediaReviewConverter {
         this.validator = validator;
     }
 
-    /** CreateDTO 先经过统一校验和规范化，再映射为待持久化实体。 */
+    /** CreateDTO 先规范化字符串字段，再映射为待持久化实体。 */
     public MediaReview fromCreateDTO(MediaReviewCreateDTO dto) {
-        validator.validateCreateDTO(dto);
+        validator.normalizeCreateDTO(dto);
         MediaReview entity = new MediaReview();
         copyEditableFields(entity, dto.getTitle(), dto.getMediaType(), dto.getStatus(), dto.getCoverUrl(),
                 dto.getRating(), dto.getShortReview(), dto.getContent(), dto.getFinishedDate());
@@ -28,7 +28,7 @@ public class MediaReviewConverter {
 
     /** 更新只覆盖可编辑字段，原实体的 id 和 createTime 会被保留。 */
     public void applyUpdate(MediaReview existing, MediaReviewUpdateDTO dto) {
-        validator.validateUpdateDTO(dto);
+        validator.normalizeUpdateDTO(dto);
         copyEditableFields(existing, dto.getTitle(), dto.getMediaType(), dto.getStatus(), dto.getCoverUrl(),
                 dto.getRating(), dto.getShortReview(), dto.getContent(), dto.getFinishedDate());
     }

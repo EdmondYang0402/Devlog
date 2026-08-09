@@ -1,7 +1,7 @@
 export default {
   common: {
     confirm: 'Confirm', cancel: 'Cancel', save: 'Save', submit: 'Submit', close: 'Close',
-    loading: 'Loading…', noData: 'No data', retry: 'Retry', back: 'Back',
+    loading: 'Loading…', noData: 'No data', retry: 'Retry', back: 'Back', backToTop: 'Back to top',
     search: 'Search', refresh: 'Refresh', delete: 'Delete'
   },
   nav: {
@@ -27,7 +27,7 @@ export default {
     uncategorized: 'Uncategorized', statistics: 'Article statistics'
   },
   archive: {
-    title: 'Archive', eyebrow: 'Archive · Writing Journey', subtitle: 'Follow the timeline and revisit every note, idea, and story.',
+    title: 'Archive',
     total: '{count} articles in total', articleUnit: 'articles', search: 'Search archive',
     searchPlaceholder: 'Search titles or summaries…', clearSearch: 'Clear search', viewMode: 'Archive view',
     timeline: 'Timeline', grid: 'Grid', monthLabel: 'MO', categoryFilter: 'Filter by category', allCategories: 'All categories',
@@ -50,8 +50,8 @@ export default {
     nameTooLong: 'Tag names must be 50 characters or fewer', loadFailed: 'Failed to load tags',
     createSuccess: 'Tag created', updateSuccess: 'Tag updated', deleteSuccess: 'Tag deleted',
     createFailed: 'Failed to create tag', updateFailed: 'Failed to update tag', deleteFailed: 'Failed to delete tag',
-    selectLabel: 'Tags', selectPlaceholder: 'Select tags', optionsFailed: 'Failed to load tag options',
-    noOptions: 'Create tags in Tag management first'
+    selectLabel: 'Tags', selectPlaceholder: 'Select tags', selectCategoryFirst: 'Select a category first', optionsFailed: 'Failed to load tag options',
+    noOptions: 'Create tags in Tag management first', noCategoryOptions: 'No tags are linked to this category'
   },
   tagFilter: {
     label: 'Filter by tags', placeholder: 'Select tags', selected: '{count} tags selected',
@@ -138,6 +138,7 @@ export default {
     cover: 'Cover', workTitle: 'Title', typeLabel: 'Type', statusLabel: 'Status', rating: 'Rating', shortReview: 'Short review',
     longReview: 'Full review', finishedDate: 'Finished date',
     type: { book: 'Books', movie: 'Movies', anime: 'Anime', game: 'Games', unknown: 'Unknown' },
+    section: { label: 'Media categories', game: 'Games', anime: 'Anime', movie: 'Movies', book: 'Books', archive: 'Interest archive', empty: 'No works in this section yet' },
     status: {
       unknown: 'Unknown', generic: { planned: 'Planned', inProgress: 'In progress', completed: 'Completed', dropped: 'Dropped' },
       book: { planned: 'Want to read', inProgress: 'Reading', completed: 'Read', dropped: 'Dropped' },

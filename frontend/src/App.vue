@@ -3,7 +3,7 @@
     <div v-if="isAdminRoute" id="root" class="app-root">
       <router-view />
     </div>
-    <FrontLayout v-else><router-view /></FrontLayout>
+    <FrontLayout v-else />
   </el-config-provider>
 </template>
 

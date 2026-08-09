@@ -130,12 +130,13 @@ onUnmounted(() => clearTimeout(searchTimer))
   <main class="archive-page">
     <header class="archive-header" aria-labelledby="archive-title">
       <div class="archive-heading">
-        <p class="archive-eyebrow">{{ t('archive.eyebrow') }}</p>
         <h1 id="archive-title">{{ t('archive.title') }}</h1>
-        <p class="archive-subtitle">{{ t('archive.subtitle') }}</p>
-        <p class="article-count" :aria-label="t('archive.total', { count: total })">
-          <span>{{ t('archive.total', { count: total }) }}</span>
-        </p>
+        <div class="archive-meta">
+          <span class="archive-rule" aria-hidden="true"></span>
+          <p class="article-count" :aria-label="t('archive.total', { count: total })">
+            {{ t('archive.total', { count: total }) }}
+          </p>
+        </div>
       </div>
     </header>
 
@@ -240,60 +241,6 @@ onUnmounted(() => clearTimeout(searchTimer))
   overflow: clip;
 }
 
-.archive-hero {
-  position: relative;
-  padding: clamp(24px, 4vw, 42px);
-  overflow: hidden;
-  background: linear-gradient(135deg, var(--glass-bg), var(--glass-bg-soft));
-  border: 1px solid var(--glass-border);
-  border-radius: 28px;
-  box-shadow: var(--glass-shadow);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-}
-.archive-hero::before,
-.archive-hero::after {
-  position: absolute;
-  content: '';
-  border-radius: 50%;
-  pointer-events: none;
-}
-.archive-hero::before {
-  width: 210px;
-  height: 210px;
-  top: -120px;
-  right: 9%;
-  background: rgba(175,169,236,.28);
-  filter: blur(2px);
-}
-.archive-hero::after {
-  width: 90px;
-  height: 90px;
-  right: 3%;
-  bottom: -45px;
-  background: rgba(237,147,177,.22);
-}
-.archive-heading,
-.archive-toolbar,
-.category-filter,
-.result-count { position: relative; z-index: 1; }
-.archive-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 28px; }
-.archive-eyebrow { margin: 0 0 4px; color: var(--purple-400); font-size: 12px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
-.archive-heading h1 { margin: 0; color: var(--text-1); font-size: clamp(30px, 5vw, 52px); line-height: 1.15; letter-spacing: -.03em; }
-.archive-subtitle { max-width: 620px; margin: 12px 0 0; color: var(--text-2); font-size: 14px; }
-.article-count {
-  display: flex;
-  align-items: baseline;
-  gap: 7px;
-  flex: 0 0 auto;
-  padding: 11px 18px;
-  background: rgba(255,255,255,.2);
-  border: 1px solid var(--article-card-border);
-  border-radius: 18px;
-  color: var(--text-2);
-}
-.article-count strong { color: var(--purple-600); font-size: 28px; line-height: 1; }
-.article-count span { font-size: 12px; }
 .archive-toolbar { display: flex; align-items: center; gap: 14px; margin-top: 30px; }
 .archive-search {
   display: flex;
@@ -406,8 +353,6 @@ onUnmounted(() => clearTimeout(searchTimer))
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-:global(html[data-theme='dark']) .archive-hero { background: linear-gradient(135deg, var(--glass-bg), var(--glass-bg-soft)); border-color: var(--glass-border); }
-:global(html[data-theme='dark']) .article-count,
 :global(html[data-theme='dark']) .archive-search,
 :global(html[data-theme='dark']) .view-switch,
 :global(html[data-theme='dark']) .category-filter button,
@@ -416,11 +361,6 @@ onUnmounted(() => clearTimeout(searchTimer))
 
 @media (max-width: 767px) {
   .archive-page { width: min(100% - 24px, 1400px); padding: 24px 0 54px; }
-  .archive-hero { padding: 22px 18px; border-radius: 22px; }
-  .archive-heading { gap: 14px; }
-  .archive-subtitle { font-size: 12px; }
-  .article-count { padding: 9px 12px; border-radius: 14px; }
-  .article-count strong { font-size: 22px; }
   .archive-toolbar { align-items: stretch; flex-direction: column; margin-top: 22px; }
   .archive-search { flex-basis: 44px; width: 100%; }
   .view-switch { width: 100%; }
@@ -430,12 +370,6 @@ onUnmounted(() => clearTimeout(searchTimer))
   .tag-filter-controls { width: 100%; }
   .tag-filter-select { width: 100%; }
   .archive-results { margin-top: 24px; }
-}
-@media (max-width: 479px) {
-  .archive-heading { align-items: flex-start; }
-  .archive-eyebrow { font-size: 10px; }
-  .article-count span { display: none; }
-  .article-count strong { font-size: 20px; }
 }
 @media (prefers-reduced-motion: reduce) { .loading-orbit { animation: none; } }
 
@@ -453,18 +387,97 @@ onUnmounted(() => clearTimeout(searchTimer))
   overflow: hidden;
 }
 .archive-header {
-  padding: 12px 16px 8px;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-items: center;
+  min-height: clamp(280px, 32vw, 340px);
+  padding: clamp(42px, 7vw, 72px);
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(8,11,19,.86) 0%, rgba(8,11,19,.62) 46%, rgba(8,11,19,.18) 100%),
+    linear-gradient(0deg, rgba(8,11,19,.32), transparent 56%);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 26px;
+  box-shadow: 0 18px 44px rgba(5,8,16,.18);
+}
+.archive-header::after {
+  position: absolute;
+  right: 7%;
+  bottom: -82px;
+  z-index: 0;
+  width: 176px;
+  height: 176px;
+  border: 1px solid rgba(244,238,217,.36);
+  border-left-color: transparent;
+  border-radius: 50%;
+  content: '';
+  pointer-events: none;
+}
+.archive-heading {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 620px);
+  padding-left: clamp(28px, 4vw, 46px);
+}
+.archive-heading::before {
+  position: absolute;
+  top: .1em;
+  bottom: .2em;
+  left: 0;
+  width: 1px;
+  background: rgba(255,255,255,.48);
+  content: '';
+}
+.archive-heading::after {
+  position: absolute;
+  top: .1em;
+  left: -4px;
+  width: 9px;
+  height: 28px;
+  background: #d8b562;
+  content: '';
+}
+.archive-heading h1 {
+  margin: 0;
+  color: #f7f5ef;
+  font-size: clamp(64px, 8.5vw, 88px);
+  font-weight: 800;
+  line-height: .96;
+  letter-spacing: -.065em;
+}
+.archive-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 26px;
+}
+.archive-rule {
+  width: clamp(54px, 8vw, 84px);
+  height: 1px;
+  background: rgba(255,255,255,.44);
+}
+.article-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
   background: transparent;
   border: 0;
-  border-radius: 0;
-  box-shadow: none;
+  color: rgba(247,245,239,.82);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  white-space: nowrap;
 }
-.archive-heading { display:block; text-align:center; }
-.archive-eyebrow { margin:0 0 5px; color:var(--archive-text-secondary); font-size:10px; letter-spacing:.18em; text-shadow:0 1px 10px rgba(255,255,255,.55); }
-.archive-heading h1 { margin:0; color:var(--archive-text-primary); font-size:clamp(36px,4.5vw,56px); font-weight:700; line-height:1.1; text-shadow:0 2px 18px rgba(255,255,255,.72); }
-.archive-subtitle { max-width:620px; margin:9px auto 0; color:var(--archive-text-secondary); font-size:13px; line-height:1.6; text-align:center; text-shadow:0 1px 12px rgba(255,255,255,.65); }
-.article-count { display:block; margin:5px 0 0; padding:0; background:transparent; border:0; border-radius:0; color:var(--archive-text-primary); font-size:11px; text-align:center; text-shadow:0 1px 10px rgba(255,255,255,.7); }
-.article-count span { display:inline; font-size:11px; }
+.article-count::before {
+  width: 6px;
+  height: 6px;
+  background: #d8b562;
+  border-radius: 50%;
+  content: '';
+}
 .archive-search {
   width: min(620px, 100%);
   height: 44px;
@@ -516,7 +529,6 @@ onUnmounted(() => clearTimeout(searchTimer))
 .archive-pagination :deep(button) { background: rgba(255,255,255,.2) !important; border: 1px solid rgba(255,255,255,.22); color: var(--text-2); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .archive-pagination :deep(.el-pager li.is-active) { background: rgba(127,119,221,.72) !important; border-color: rgba(175,169,236,.7); color: #fff; }
 :global(html[data-theme='dark']) .archive-page { --archive-text-primary:#f4f5fb; --archive-text-secondary:rgba(244,245,251,.82); --archive-text-muted:rgba(244,245,251,.66); }
-:global(html[data-theme='dark']) .archive-header { background:transparent; border:0; }
 :global(html[data-theme='dark']) .archive-search,
 :global(html[data-theme='dark']) .filter-toolbar { background: rgba(24,24,34,.3); border-color: rgba(255,255,255,.12); }
 :global(html[data-theme='dark']) .category-filter button,
@@ -525,8 +537,8 @@ onUnmounted(() => clearTimeout(searchTimer))
 
 @media (max-width: 780px) {
   .archive-page { width: min(100% - 24px, 960px); padding: 22px 0 48px; }
-  .archive-header { padding: 15px 16px; }
-  .archive-heading h1 { font-size: clamp(30px, 8vw, 42px); }
+  .archive-header { min-height: 250px; padding: 38px 34px; border-radius: 22px; }
+  .archive-heading h1 { font-size: clamp(54px, 11vw, 68px); }
   .filter-toolbar { display: block; }
   .filter-actions { justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,.16); }
   .tag-filter-select { width: min(240px, 46vw); }
@@ -534,10 +546,14 @@ onUnmounted(() => clearTimeout(searchTimer))
 }
 @media (max-width: 520px) {
   .archive-page { width: calc(100% - 20px); padding-top: 16px; }
-  .archive-header { padding: 14px; }
-  .archive-subtitle { max-width: 82%; font-size: 11px; }
-  .article-count { padding: 6px 9px; }
-  .article-count span { display: inline; }
+  .archive-header { min-height: 210px; padding: 30px 24px; border-radius: 18px; }
+  .archive-header::after { display: none; }
+  .archive-heading { padding-left: 24px; }
+  .archive-heading::after { height: 22px; }
+  .archive-heading h1 { font-size: clamp(44px, 14vw, 56px); }
+  .archive-meta { gap: 10px; margin-top: 20px; }
+  .archive-rule { width: 40px; }
+  .article-count { font-size: 11px; letter-spacing: .04em; }
   .archive-search { width: 100%; margin-top: 10px; }
   .filter-actions { align-items: stretch; flex-direction: column; }
   .tag-filter-control { width: 100%; }

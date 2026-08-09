@@ -1,1 +1,0 @@
-import{cW as e}from"./index-CXTtU1Wi.js";const o=()=>e.get("/site/profile"),r=()=>e.get("/admin/site/profile"),s=i=>e.put("/admin/site/profile",i),n=i=>{const a=new FormData;return a.append("file",i),e.post("/admin/upload/image",a)};export{n as a,s as b,r as c,o as s};

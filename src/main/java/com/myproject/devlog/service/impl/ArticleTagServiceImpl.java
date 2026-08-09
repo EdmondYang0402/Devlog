@@ -1,5 +1,6 @@
 package com.myproject.devlog.service.impl;
 
+import com.myproject.devlog.common.BusinessException;
 import com.myproject.devlog.mapper.ArticleTagMapper;
 import com.myproject.devlog.mapper.TagMapper;
 import com.myproject.devlog.pojo.entity.ArticleTag;
@@ -9,6 +10,7 @@ import com.myproject.devlog.pojo.vo.TagVO;
 import com.myproject.devlog.service.ArticleTagService;
 import com.myproject.devlog.utils.TagConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -35,7 +37,7 @@ public class ArticleTagServiceImpl implements ArticleTagService {
 
         if (!normalizedTagIds.isEmpty()
                 && tagMapper.countByIds(normalizedTagIds) != normalizedTagIds.size()) {
-            throw new RuntimeException("有不存在的标签");
+            throw new BusinessException(HttpStatus.NOT_FOUND, "有不存在的标签");
         }
 
         articleTagMapper.deleteByArticleId(articleId);
@@ -53,7 +55,9 @@ public class ArticleTagServiceImpl implements ArticleTagService {
                 })
                 .toList();
 
-        articleTagMapper.batchInsert(relations);
+        if (articleTagMapper.insertBatch(relations) != relations.size()) {
+            throw new IllegalStateException("文章标签关系创建未影响预期记录数");
+        }
     }
 
     @Override
@@ -62,7 +66,7 @@ public class ArticleTagServiceImpl implements ArticleTagService {
             return List.of();
         }
 
-        List<Tag> tags = articleTagMapper.listByArticleId(articleId);
+        List<Tag> tags = articleTagMapper.selectByArticleId(articleId);
 
         if (tags == null || tags.isEmpty()) {
             return List.of();
@@ -84,7 +88,7 @@ public class ArticleTagServiceImpl implements ArticleTagService {
                 .toList();
         if (distinctIds.isEmpty()) return result;
 
-        List<ArticleTagQueryVO> rows = articleTagMapper.listTagsByArticleIds(distinctIds);
+        List<ArticleTagQueryVO> rows = articleTagMapper.selectTagsByArticleIds(distinctIds);
         if (rows == null || rows.isEmpty()) return result;
 
         for (ArticleTagQueryVO row : rows) {

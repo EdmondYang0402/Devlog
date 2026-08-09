@@ -55,11 +55,10 @@ const login = async () => {
 </script>
 
 <template>
-    <div id="login-scene" class="scene">
+    <div id="login-scene" class="scene scene--background-carousel">
         <canvas id="bg-canvas" class="bg-canvas"></canvas>
         <div class="card">
             <div class="logo">
-                <span class="logo-mark">✦</span>
                 <span class="logo-title">Hathaway's Blog</span>
                 <p class="logo-sub">{{ t('auth.welcomeBack') }}</p>
             </div>

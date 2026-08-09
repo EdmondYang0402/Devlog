@@ -1,7 +1,6 @@
 package com.myproject.devlog.utils;
 
 import com.myproject.devlog.common.BusinessException;
-import com.myproject.devlog.common.ProjectStatusConstant;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
@@ -15,20 +14,16 @@ import static com.myproject.devlog.utils.UploadUrlUtil.isLocalUploadUrl;
 
 @Component
 public class ProjectValidator {
-    private static final int MAX_TECH_STACK_ITEMS = 20;
-    private static final int MAX_TECH_STACK_ITEM_LENGTH = 50;
     private static final int MAX_TECH_STACK_JSON_LENGTH = 1000;
-    private static final int MIN_SORT_ORDER = -100000;
-    private static final int MAX_SORT_ORDER = 100000;
 
-    /** 规范化项目名称，并保证数据库必填字段满足 100 字符上限。 */
+    /** 必填与长度由 DTO 保证，这里只统一去除首尾空白。 */
     public String normalizeName(String name) {
-        return normalizeRequired(name, 100, "项目名称不能为空", "项目名称不能超过100个字符");
+        return name.strip();
     }
 
-    /** 规范化一句话简介，并保证数据库必填字段满足 300 字符上限。 */
+    /** 必填与长度由 DTO 保证，这里只统一去除首尾空白。 */
     public String normalizeSummary(String summary) {
-        return normalizeRequired(summary, 300, "项目简介不能为空", "项目简介不能超过300个字符");
+        return summary.strip();
     }
 
     /** 详细介绍允许保存 Markdown 或富文本，只处理首尾空白，不清洗或解析内容。 */
@@ -58,13 +53,7 @@ public class ProjectValidator {
                 continue;
             }
             String value = item.strip();
-            if (value.length() > MAX_TECH_STACK_ITEM_LENGTH) {
-                throw new BusinessException("单项技术栈不能超过50个字符");
-            }
             normalized.add(value);
-        }
-        if (normalized.size() > MAX_TECH_STACK_ITEMS) {
-            throw new BusinessException("技术栈不能超过20项");
         }
         return new ArrayList<>(normalized);
     }
@@ -86,29 +75,14 @@ public class ProjectValidator {
         return normalizeUrl(demoUrl, "在线演示地址不合法");
     }
 
-    /** 校验数据库使用的 0～4 项目状态码。 */
-    public void validateStatus(Integer status) {
-        if (!ProjectStatusConstant.isValid(status)) {
-            throw new BusinessException("项目状态不合法");
-        }
-    }
-
-    /** 精选标记默认关闭，并且只接受数据库约定的 0 或 1。 */
+    /** 合法值范围由 DTO 保证；这里只应用缺省值。 */
     public Integer normalizeFeatured(Integer featured) {
-        int normalized = featured == null ? 0 : featured;
-        if (normalized != 0 && normalized != 1) {
-            throw new BusinessException("精选标记不合法");
-        }
-        return normalized;
+        return featured == null ? 0 : featured;
     }
 
-    /** 手动排序默认 0，并限制在简单、可管理的整数范围内。 */
+    /** 合法值范围由 DTO 保证；这里只应用缺省值。 */
     public Integer normalizeSortOrder(Integer sortOrder) {
-        int normalized = sortOrder == null ? 0 : sortOrder;
-        if (normalized < MIN_SORT_ORDER || normalized > MAX_SORT_ORDER) {
-            throw new BusinessException("项目排序权重不合法");
-        }
-        return normalized;
+        return sortOrder == null ? 0 : sortOrder;
     }
 
     /** 起止日期均可为空；同时存在时仅保证完成日期不早于开始日期。 */
@@ -116,20 +90,6 @@ public class ProjectValidator {
         if (startedDate != null && completedDate != null && completedDate.isBefore(startedDate)) {
             throw new BusinessException("完成日期不能早于开始日期");
         }
-    }
-
-    private String normalizeRequired(String value, int maxLength, String requiredMessage, String lengthMessage) {
-        if (value == null) {
-            throw new BusinessException(requiredMessage);
-        }
-        String normalized = value.strip();
-        if (normalized.isEmpty()) {
-            throw new BusinessException(requiredMessage);
-        }
-        if (normalized.length() > maxLength) {
-            throw new BusinessException(lengthMessage);
-        }
-        return normalized;
     }
 
     private String normalizeOptional(String value) {
@@ -144,9 +104,6 @@ public class ProjectValidator {
         String normalized = normalizeOptional(value);
         if (normalized == null) {
             return null;
-        }
-        if (normalized.length() > 500) {
-            throw new BusinessException(errorMessage);
         }
         try {
             URI uri = new URI(normalized);

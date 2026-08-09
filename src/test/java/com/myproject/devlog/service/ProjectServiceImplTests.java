@@ -35,7 +35,7 @@ class ProjectServiceImplTests {
         mapper = mock(ProjectMapper.class);
         ProjectValidator validator = new ProjectValidator();
         ProjectConverter converter = new ProjectConverter(validator, new ObjectMapper());
-        service = new ProjectServiceImpl(mapper, converter, validator);
+        service = new ProjectServiceImpl(mapper, converter);
     }
 
     @Test
@@ -56,14 +56,14 @@ class ProjectServiceImplTests {
     @Test
     void createRejectsUnexpectedAffectedRows() {
         when(mapper.insert(any(ProjectShowcase.class))).thenReturn(0);
-        assertThrows(BusinessException.class, () -> service.create(createDTO("DevLog")));
+        assertThrows(IllegalStateException.class, () -> service.create(createDTO("DevLog")));
     }
 
     @Test
     void missingProjectUsesNotFoundStatus() {
         when(mapper.selectById(9L)).thenReturn(null);
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> service.getAdminDetail(9L));
+                () -> service.getAdminById(9L));
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
         assertEquals("项目不存在", exception.getMessage());
     }
@@ -74,7 +74,7 @@ class ProjectServiceImplTests {
         LocalDateTime created = LocalDateTime.of(2026, 1, 1, 0, 0);
         existing.setCreateTime(created);
         when(mapper.selectById(7L)).thenReturn(existing);
-        when(mapper.update(existing)).thenReturn(1);
+        when(mapper.updateById(existing)).thenReturn(1);
 
         ProjectUpdateDTO dto = new ProjectUpdateDTO();
         dto.setName("更新项目");
@@ -84,7 +84,7 @@ class ProjectServiceImplTests {
 
         assertEquals(7L, existing.getId());
         assertEquals(created, existing.getCreateTime());
-        verify(mapper).update(existing);
+        verify(mapper).updateById(existing);
 
         when(mapper.deleteById(7L)).thenReturn(1);
         service.delete(7L);
@@ -102,36 +102,36 @@ class ProjectServiceImplTests {
     void adminPagePassesNormalizedKeywordStatusAndFeaturedFilters() {
         ProjectPageQueryDTO query = query(2, 10, 1, 1);
         query.setKeyword(" DevLog ");
-        when(mapper.adminPage(10, 10, "DevLog", 1, 1)).thenReturn(List.of(entity(1L, 1)));
-        when(mapper.adminCount("DevLog", 1, 1)).thenReturn(1L);
+        when(mapper.selectAdminPage(10, 10, "DevLog", 1, 1)).thenReturn(List.of(entity(1L, 1)));
+        when(mapper.countAdmin("DevLog", 1, 1)).thenReturn(1L);
 
-        assertEquals(1L, service.adminPage(query).getTotal());
-        verify(mapper).adminPage(10, 10, "DevLog", 1, 1);
-        verify(mapper).adminCount("DevLog", 1, 1);
+        assertEquals(1L, service.pageAdmin(query).getTotal());
+        verify(mapper).selectAdminPage(10, 10, "DevLog", 1, 1);
+        verify(mapper).countAdmin("DevLog", 1, 1);
     }
 
     @Test
     void frontPagePassesFiltersToDatabasePagination() {
         ProjectPageQueryDTO query = query(1, 12, 3, 0);
-        when(mapper.frontPage(0, 12, 3, 0)).thenReturn(List.of());
-        when(mapper.frontCount(3, 0)).thenReturn(0L);
+        when(mapper.selectFrontPage(0, 12, 3, 0)).thenReturn(List.of());
+        when(mapper.countFront(3, 0)).thenReturn(0L);
 
-        service.frontPage(query);
+        service.page(query);
 
-        verify(mapper).frontPage(0, 12, 3, 0);
-        verify(mapper).frontCount(3, 0);
+        verify(mapper).selectFrontPage(0, 12, 3, 0);
+        verify(mapper).countFront(3, 0);
     }
 
     @Test
     void featuredProjectsUseDefaultAndMaximumLimit() {
-        when(mapper.featuredList(3)).thenReturn(List.of(entity(1L, 1)));
-        assertEquals(1, service.getFeaturedProjects(null).size());
-        verify(mapper).featuredList(3);
+        when(mapper.selectFeaturedList(3)).thenReturn(List.of(entity(1L, 1)));
+        assertEquals(1, service.listFeatured(null).size());
+        verify(mapper).selectFeaturedList(3);
 
-        when(mapper.featuredList(10)).thenReturn(List.of(entity(2L, 1)));
-        assertEquals(1, service.getFeaturedProjects(99).size());
-        verify(mapper).featuredList(10);
-        assertThrows(BusinessException.class, () -> service.getFeaturedProjects(0));
+        when(mapper.selectFeaturedList(10)).thenReturn(List.of(entity(2L, 1)));
+        assertEquals(1, service.listFeatured(99).size());
+        verify(mapper).selectFeaturedList(10);
+        assertThrows(BusinessException.class, () -> service.listFeatured(0));
     }
 
     private ProjectCreateDTO createDTO(String name) {

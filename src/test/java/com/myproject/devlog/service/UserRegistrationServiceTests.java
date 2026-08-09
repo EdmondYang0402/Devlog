@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,24 +40,14 @@ class UserRegistrationServiceTests {
     }
 
     @Test
-    void rejectsBlankEmailBeforeEncodingOrWriting() {
-        UserRegisterDTO dto = registration("validUser", "validPassword", " ");
-
-        BusinessException exception = assertThrows(BusinessException.class, () -> userService.register(dto));
-
-        assertEquals("邮箱不能为空", exception.getMessage());
-        verify(passwordEncoder, never()).encode(any());
-        verify(userMapper, never()).insert(any());
-    }
-
-    @Test
     void rejectsExistingUsernameWithClearMessage() {
         UserRegisterDTO dto = registration("takenUser", "validPassword", "new@example.com");
-        when(userMapper.getByUsername("takenUser")).thenReturn(new User());
+        when(userMapper.selectByUsername("takenUser")).thenReturn(new User());
 
         BusinessException exception = assertThrows(BusinessException.class, () -> userService.register(dto));
 
         assertEquals("用户名已存在", exception.getMessage());
+        assertEquals(HttpStatus.CONFLICT, exception.getStatus());
         verify(userMapper, never()).insert(any());
     }
 
@@ -73,11 +64,12 @@ class UserRegistrationServiceTests {
     @Test
     void rejectsExistingEmailWithClearMessage() {
         UserRegisterDTO dto = registration("newUser", "validPassword", "taken@example.com");
-        when(userMapper.getByEmail("taken@example.com")).thenReturn(new User());
+        when(userMapper.selectByEmail("taken@example.com")).thenReturn(new User());
 
         BusinessException exception = assertThrows(BusinessException.class, () -> userService.register(dto));
 
         assertEquals("邮箱已被注册", exception.getMessage());
+        assertEquals(HttpStatus.CONFLICT, exception.getStatus());
         verify(userMapper, never()).insert(any());
     }
 
@@ -85,6 +77,7 @@ class UserRegistrationServiceTests {
     void trimsIdentifiersHashesPasswordAndInsertsUser() {
         UserRegisterDTO dto = registration("  newUser  ", "validPassword", "  new@example.com  ");
         when(passwordEncoder.encode("validPassword")).thenReturn("hashed-password");
+        when(userMapper.insert(any(User.class))).thenReturn(1);
 
         userService.register(dto);
 
@@ -106,6 +99,7 @@ class UserRegistrationServiceTests {
         BusinessException exception = assertThrows(BusinessException.class, () -> userService.register(dto));
 
         assertEquals("用户名或邮箱已存在", exception.getMessage());
+        assertEquals(HttpStatus.CONFLICT, exception.getStatus());
     }
 
     private UserRegisterDTO registration(String username, String password, String email) {

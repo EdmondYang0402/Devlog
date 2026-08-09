@@ -27,11 +27,11 @@ public class MediaReviewController {
             @RequestParam(defaultValue = "12") Integer size,
             @RequestParam(required = false) Integer mediaType,
             @RequestParam(defaultValue = "latest") String sort) {
-        return Result.success(mediaReviewService.getFrontPage(page, size, mediaType, sort));
+        return Result.success(mediaReviewService.page(page, size, mediaType, sort));
     }
 
     @GetMapping("/{id}")
     public Result<MediaReviewDetailVO> detail(@PathVariable Long id) {
-        return Result.success(mediaReviewService.getFrontDetail(id));
+        return Result.success(mediaReviewService.getById(id));
     }
 }

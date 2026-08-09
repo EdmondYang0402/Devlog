@@ -13,6 +13,18 @@
     overflow-y: auto;
 }
 
+/*
+ * The login route is rendered inside FrontLayout, which owns the same
+ * BackgroundCarousel and BackgroundOverlay used by the home page. Keep this
+ * scene transparent so those shared layers remain visible; the register page
+ * retains the original static auth background.
+ */
+.scene--background-carousel {
+    min-height: calc(100vh - var(--nav-h));
+    min-height: calc(100dvh - var(--nav-h));
+    background: transparent;
+}
+
 .bg-canvas {
     position: absolute;
     inset: 0;
@@ -35,15 +47,13 @@
     backdrop-filter: blur(12px);
 }
 
+.scene--background-carousel .card {
+    z-index: 80;
+}
+
 .logo {
     text-align: center;
     margin-bottom: 1.75rem;
-}
-
-.logo-mark {
-    font-size: 22px;
-    color: rgba(255, 182, 193, 0.8);
-    margin-right: 6px;
 }
 
 .logo-title {

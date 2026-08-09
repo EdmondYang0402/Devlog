@@ -8,4 +8,4 @@ export const updateBackground = (id, data) => request.put(`/admin/site-backgroun
 export const deleteBackground = id => request.delete(`/admin/site-backgrounds/${id}`)
 
 // 公开接口供前台访客读取已启用背景，不要求登录，也不在组件中重复创建请求实例。
-export const getPublicBackgrounds = () => request.get('/site/backgrounds')
+export const getPublicBackgrounds = () => request.get('/site-backgrounds')

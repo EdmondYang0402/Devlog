@@ -16,7 +16,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/article")
+@RequestMapping("/articles")
 public class ArticleController {
 
     private final ArticleService articleService;
@@ -28,11 +28,7 @@ public class ArticleController {
     // 文章详情
     @GetMapping("/{id}")
     public Result<ArticleDetailVO> getDetail(@PathVariable Long id) {
-        ArticleDetailVO detail = articleService.getFrontDetail(id);
-        if (detail == null) {
-            return Result.error("文章不存在或未发布");
-        }
-        return Result.success(detail);
+        return Result.success(articleService.getFrontDetail(id));
     }
 
     // 浏览量+1
@@ -42,15 +38,15 @@ public class ArticleController {
         return Result.success();
     }
 
-    // 前台文章列表：GET /article/list?page=1&size=10&categorySlug=notes
-    @GetMapping({"", "/list"})
+    // 前台文章列表：GET /articles?page=1&size=10&categorySlug=notes
+    @GetMapping
     public Result<PageResult<ArticleListVO>> list(@RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String categorySlug,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) List<Long> tagIds) {
-        return Result.success(articleService.getFrontList(
+        return Result.success(articleService.page(
                 page, size, categoryId, categorySlug, keyword, tagIds
         ));
     }

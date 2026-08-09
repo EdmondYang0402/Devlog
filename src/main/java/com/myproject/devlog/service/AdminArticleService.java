@@ -9,7 +9,7 @@ import com.myproject.devlog.pojo.vo.ArticleDetailVO;
 public interface AdminArticleService {
     void create(ArticleCreateDTO dto);
     void update(ArticleUpdateDTO dto);
-    ArticleDetailVO getDetail(Long id);
+    ArticleDetailVO getById(Long id);
     void delete(Long id);
     PageResult<ArticleListVO> page(Integer page, Integer size, String title, Integer status);
 }

@@ -39,7 +39,7 @@ public class MediaReviewServiceImpl implements MediaReviewService {
     public void create(MediaReviewCreateDTO dto) {
         MediaReview entity = mediaReviewConverter.fromCreateDTO(dto);
         if (mediaReviewMapper.insert(entity) != 1) {
-            throw new BusinessException("作品记录创建失败");
+            throw new IllegalStateException("作品记录创建未影响预期记录数");
         }
     }
 
@@ -49,8 +49,8 @@ public class MediaReviewServiceImpl implements MediaReviewService {
     public void update(Long id, MediaReviewUpdateDTO dto) {
         MediaReview existing = getRequiredReview(id);
         mediaReviewConverter.applyUpdate(existing, dto);
-        if (mediaReviewMapper.update(existing) != 1) {
-            throw new BusinessException("作品记录更新失败");
+        if (mediaReviewMapper.updateById(existing) != 1) {
+            throw new IllegalStateException("作品记录更新未影响预期记录数");
         }
     }
 
@@ -60,18 +60,18 @@ public class MediaReviewServiceImpl implements MediaReviewService {
     public void delete(Long id) {
         getRequiredReview(id);
         if (mediaReviewMapper.deleteById(id) != 1) {
-            throw new BusinessException("作品记录删除失败");
+            throw new IllegalStateException("作品记录删除未影响预期记录数");
         }
     }
 
     @Override
-    public MediaReviewDetailVO getAdminDetail(Long id) {
+    public MediaReviewDetailVO getAdminById(Long id) {
         return mediaReviewConverter.toDetailVO(getRequiredReview(id));
     }
 
     /** 后台分页保留全部状态，并让数据库同时完成筛选、排序和分页。 */
     @Override
-    public PageResult<MediaReviewListVO> adminPage(Integer page, Integer size, String title,
+    public PageResult<MediaReviewListVO> pageAdmin(Integer page, Integer size, String title,
                                                     Integer mediaType, Integer status) {
         validatePage(page, size);
         String normalizedTitle = normalizeSearchTitle(title);
@@ -84,23 +84,23 @@ public class MediaReviewServiceImpl implements MediaReviewService {
 
         int offset = (page - 1) * size;
         List<MediaReviewListVO> records = mediaReviewMapper
-                .adminPage(offset, size, normalizedTitle, mediaType, status)
+                .selectAdminPage(offset, size, normalizedTitle, mediaType, status)
                 .stream()
                 .map(mediaReviewConverter::toListVO)
                 .toList();
-        long total = mediaReviewMapper.adminCount(normalizedTitle, mediaType, status);
+        long total = mediaReviewMapper.countAdmin(normalizedTitle, mediaType, status);
         return new PageResult<>(records, total);
     }
 
     @Override
-    public MediaReviewDetailVO getFrontDetail(Long id) {
+    public MediaReviewDetailVO getById(Long id) {
         // 现有前台有“进行中 / 计划中”区域，因此详情允许展示所有状态，而不是只公开已完成记录。
         return mediaReviewConverter.toDetailVO(getRequiredReview(id));
     }
 
     /** 前台时间轴与矩阵共用相同分页结果，视图切换不会改变后端查询契约。 */
     @Override
-    public PageResult<MediaReviewListVO> getFrontPage(Integer page, Integer size,
+    public PageResult<MediaReviewListVO> page(Integer page, Integer size,
                                                        Integer mediaType, String sort) {
         validatePage(page, size);
         if (mediaType != null) {
@@ -109,11 +109,11 @@ public class MediaReviewServiceImpl implements MediaReviewService {
         String normalizedSort = normalizeSort(sort);
         int offset = (page - 1) * size;
         List<MediaReviewListVO> records = mediaReviewMapper
-                .frontPage(offset, size, mediaType, normalizedSort)
+                .selectFrontPage(offset, size, mediaType, normalizedSort)
                 .stream()
                 .map(mediaReviewConverter::toListVO)
                 .toList();
-        long total = mediaReviewMapper.frontCount(mediaType);
+        long total = mediaReviewMapper.countFront(mediaType);
         return new PageResult<>(records, total);
     }
 

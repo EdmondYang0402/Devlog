@@ -60,7 +60,7 @@ class ProjectConverterTests {
     void invalidJsonIsNotSilentlyConvertedToEmptyList() {
         ProjectShowcase entity = new ProjectShowcase();
         entity.setTechStack("not-json");
-        assertThrows(BusinessException.class, () -> converter.toDetailVO(entity));
+        assertThrows(IllegalStateException.class, () -> converter.toDetailVO(entity));
     }
 
     @Test

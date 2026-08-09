@@ -34,29 +34,29 @@ class ArticleTagFilterTests {
     @Test
     void noTagIdsUsesOrdinaryPublishedPageAndKeepsUntaggedArticles() {
         ArticleListVO article = article(1L);
-        when(articleMapper.frontPage(0, 10, null, null, null)).thenReturn(List.of(article));
+        when(articleMapper.selectFrontPage(0, 10, null, null, null)).thenReturn(List.of(article));
         when(articleMapper.countFront(null, null, null)).thenReturn(1);
         when(articleTagService.listByArticleIds(List.of(1L))).thenReturn(Map.of());
 
-        PageResult<ArticleListVO> result = service.getFrontList(1, 10, null, null, null, null);
+        PageResult<ArticleListVO> result = service.page(1, 10, null, null, null, null);
 
         assertEquals(1, result.getTotal());
         assertEquals(List.of(), result.getRecords().getFirst().getTags());
-        verify(articleMapper, never()).frontPageByTagIds(
+        verify(articleMapper, never()).selectFrontPageByTagIds(
                 anyInt(), anyInt(), any(), any(), any(), anyList(), anyInt()
         );
     }
 
     @Test
     void emptyAndNullOnlyTagIdsUseOrdinaryQuery() {
-        when(articleMapper.frontPage(0, 10, null, null, null)).thenReturn(List.of());
+        when(articleMapper.selectFrontPage(0, 10, null, null, null)).thenReturn(List.of());
         when(articleMapper.countFront(null, null, null)).thenReturn(0);
 
-        service.getFrontList(1, 10, null, null, "  ", List.of());
-        service.getFrontList(1, 10, null, null, null, java.util.Arrays.asList(null, null));
+        service.page(1, 10, null, null, "  ", List.of());
+        service.page(1, 10, null, null, null, java.util.Arrays.asList(null, null));
 
-        verify(articleMapper, times(2)).frontPage(0, 10, null, null, null);
-        verify(articleMapper, never()).frontPageByTagIds(
+        verify(articleMapper, times(2)).selectFrontPage(0, 10, null, null, null);
+        verify(articleMapper, never()).selectFrontPageByTagIds(
                 anyInt(), anyInt(), any(), any(), any(), anyList(), anyInt()
         );
     }
@@ -64,28 +64,28 @@ class ArticleTagFilterTests {
     @Test
     void duplicateAndNullTagIdsAreCleanedBeforeAndFilterQuery() {
         List<Long> cleaned = List.of(3L, 5L);
-        when(articleMapper.frontPageByTagIds(10, 10, 2L, null, "JWT", cleaned, 2))
+        when(articleMapper.selectFrontPageByTagIds(10, 10, 2L, null, "JWT", cleaned, 2))
                 .thenReturn(List.of(article(8L)));
         when(articleMapper.countFrontByTagIds(2L, null, "JWT", cleaned, 2)).thenReturn(1);
         when(articleTagService.listByArticleIds(List.of(8L))).thenReturn(Map.of());
 
-        PageResult<ArticleListVO> result = service.getFrontList(
+        PageResult<ArticleListVO> result = service.page(
                 2, 10, 2L, null, " JWT ", java.util.Arrays.asList(3L, null, 3L, 5L)
         );
 
         assertEquals(1, result.getTotal());
-        verify(articleMapper).frontPageByTagIds(10, 10, 2L, null, "JWT", cleaned, 2);
+        verify(articleMapper).selectFrontPageByTagIds(10, 10, 2L, null, "JWT", cleaned, 2);
         verify(articleMapper).countFrontByTagIds(2L, null, "JWT", cleaned, 2);
-        verify(articleMapper, never()).frontPage(anyInt(), anyInt(), any(), any(), any());
+        verify(articleMapper, never()).selectFrontPage(anyInt(), anyInt(), any(), any(), any());
     }
 
     @Test
     void nonexistentTagNaturallyReturnsEmptyFilteredPage() {
-        when(articleMapper.frontPageByTagIds(0, 10, null, null, null, List.of(999L), 1))
+        when(articleMapper.selectFrontPageByTagIds(0, 10, null, null, null, List.of(999L), 1))
                 .thenReturn(List.of());
         when(articleMapper.countFrontByTagIds(null, null, null, List.of(999L), 1)).thenReturn(0);
 
-        PageResult<ArticleListVO> result = service.getFrontList(
+        PageResult<ArticleListVO> result = service.page(
                 1, 10, null, null, null, List.of(999L)
         );
 
@@ -95,20 +95,20 @@ class ArticleTagFilterTests {
 
     @Test
     void notesSlugUsesStableUniqueCategoryNameInBothPageAndCount() {
-        when(articleMapper.frontPage(0, 10, null, "手记", null)).thenReturn(List.of());
+        when(articleMapper.selectFrontPage(0, 10, null, "手记", null)).thenReturn(List.of());
         when(articleMapper.countFront(null, "手记", null)).thenReturn(0);
 
-        service.getFrontList(1, 10, null, " notes ", null, null);
+        service.page(1, 10, null, " notes ", null, null);
 
-        verify(articleMapper).frontPage(0, 10, null, "手记", null);
+        verify(articleMapper).selectFrontPage(0, 10, null, "手记", null);
         verify(articleMapper).countFront(null, "手记", null);
     }
 
     @Test
     void mapperSqlEnforcesPublishedAndSemanticsAndCorrectCount() throws Exception {
-        String pageSql = sql("frontPageByTagIds");
+        String pageSql = sql("selectFrontPageByTagIds");
         String countSql = sql("countFrontByTagIds");
-        String ordinarySql = sql("frontPage");
+        String ordinarySql = sql("selectFrontPage");
         String ordinaryCountSql = sql("countFront");
 
         assertTrue(pageSql.matches("(?s).*a\\.status\\s*=\\s*1.*"));

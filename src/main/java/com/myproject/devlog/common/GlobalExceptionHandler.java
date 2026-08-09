@@ -4,11 +4,13 @@ import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.validation.BindException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,7 +23,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Result<Void>> handleBusinessException(BusinessException exception) {
         return ResponseEntity.status(exception.getStatus())
-                .body(Result.error(exception.getStatus().value(), exception.getMessage()));
+                .body(Result.error(exception.getStatus(), exception.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -40,6 +42,21 @@ public class GlobalExceptionHandler {
                 .map(violation -> violation.getMessage() == null ? "参数不合法" : violation.getMessage())
                 .orElse("参数不合法");
         return ResponseEntity.badRequest().body(Result.error(400, message));
+    }
+
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<Result<Void>> handleBindException(BindException exception) {
+        String message = exception.getBindingResult().getFieldErrors().stream()
+                .findFirst()
+                .map(error -> error.getDefaultMessage() == null ? "参数绑定失败" : error.getDefaultMessage())
+                .orElse("参数绑定失败");
+        return ResponseEntity.badRequest().body(Result.error(HttpStatus.BAD_REQUEST, message));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Result<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException exception) {
+        return ResponseEntity.badRequest()
+                .body(Result.error(HttpStatus.BAD_REQUEST, "参数类型不正确"));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -70,14 +87,18 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Result<Void>> handleDataIntegrityViolation(DataIntegrityViolationException exception) {
-        log.warn("Data write violated a database constraint", exception);
-        return ResponseEntity.badRequest().body(Result.error(400, "提交的数据不符合数据库约束"));
+        log.error("Unhandled database constraint violation", exception);
+        return internalServerError();
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Result<Void>> handleUnknownException(Exception exception) {
         log.error("Unhandled server exception", exception);
-        return ResponseEntity.internalServerError()
-                .body(Result.error(500, "服务器内部错误，请稍后重试"));
+        return internalServerError();
+    }
+
+    private ResponseEntity<Result<Void>> internalServerError() {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Result.error(HttpStatus.INTERNAL_SERVER_ERROR, "服务器内部错误"));
     }
 }

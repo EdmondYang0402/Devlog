@@ -33,7 +33,7 @@ public interface CommentMapper {
         )
     """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
-    void insert(Comment comment);
+    int insert(Comment comment);
 
     @Select("""
         SELECT *
@@ -41,7 +41,7 @@ public interface CommentMapper {
         WHERE id = #{id}
           AND is_deleted = 0
     """)
-    Comment getById(Long id);
+    Comment selectById(Long id);
 
     @Select("""
         SELECT *
@@ -49,7 +49,7 @@ public interface CommentMapper {
         WHERE article_id = #{articleId}
         ORDER BY create_time ASC
     """)
-    List<Comment> listByArticleId(Long articleId);
+    List<Comment> selectByArticleId(Long articleId);
 
     @Update("""
         UPDATE comment
@@ -58,9 +58,9 @@ public interface CommentMapper {
         WHERE id = #{id}
           AND is_deleted = 0
     """)
-    void logicalDelete(Long id);
+    int deleteById(Long id);
 
     @Delete("DELETE FROM comment WHERE article_id = #{articleId}")
-    void deleteByArticleId(Long articleId);//因为删除文章后评论就没有意义了，所以根据文章删除所有评论
+    int deleteByArticleId(Long articleId);//因为删除文章后评论就没有意义了，所以根据文章删除所有评论
 
 }

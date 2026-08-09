@@ -26,10 +26,10 @@ class ProjectControllerTests {
     @Test
     void frontPageDetailAndFeaturedRoutesReturnUnifiedResults() throws Exception {
         ProjectService service = mock(ProjectService.class);
-        when(service.frontPage(any(ProjectPageQueryDTO.class)))
+        when(service.page(any(ProjectPageQueryDTO.class)))
                 .thenReturn(new PageResult<>(List.of(), 0));
-        when(service.getFeaturedProjects(5)).thenReturn(List.of());
-        when(service.getFrontDetail(7L)).thenReturn(new ProjectDetailVO());
+        when(service.listFeatured(5)).thenReturn(List.of());
+        when(service.getById(7L)).thenReturn(new ProjectDetailVO());
         MockMvc mvc = MockMvcBuilders.standaloneSetup(new ProjectController(service)).build();
 
         mvc.perform(get("/projects").param("page", "1").param("size", "12"))
@@ -39,8 +39,8 @@ class ProjectControllerTests {
         mvc.perform(get("/projects/7"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(200));
 
-        verify(service).getFeaturedProjects(5);
-        verify(service).getFrontDetail(7L);
+        verify(service).listFeatured(5);
+        verify(service).getById(7L);
     }
 
     @Test

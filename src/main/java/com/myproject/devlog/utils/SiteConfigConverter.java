@@ -69,7 +69,7 @@ public class SiteConfigConverter {
         try {
             return objectMapper.writeValueAsString(keywords);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("展示关键词序列化失败", e);
+            throw new IllegalStateException("展示关键词序列化失败", e);
         }
     }
 
@@ -84,7 +84,7 @@ public class SiteConfigConverter {
                     ? Collections.emptyList()
                     : values;
         } catch (JsonProcessingException e) {
-            return Collections.emptyList();
+            throw new IllegalStateException("展示关键词数据解析失败", e);
         }
     }
     public SiteConfig fromUpdateDTO(SiteConfigUpdateDTO dto) {
@@ -95,10 +95,7 @@ public class SiteConfigConverter {
         config.setId(SITE_CONFIG_ID);
 
         config.setSiteTitle(
-                validator.normalizeRequired(
-                        dto.getSiteTitle(),
-                        "站点标题不能为空"
-                )
+                validator.normalizeRequired(dto.getSiteTitle())
         );
 
         config.setHeroSubtitle(
@@ -108,10 +105,7 @@ public class SiteConfigConverter {
         config.setHeroKeywords(writeKeywords(keywords));
 
         config.setAuthorName(
-                validator.normalizeRequired(
-                        dto.getAuthorName(),
-                        "博主展示名称不能为空"
-                )
+                validator.normalizeRequired(dto.getAuthorName())
         );
 
         config.setAuthorBio(

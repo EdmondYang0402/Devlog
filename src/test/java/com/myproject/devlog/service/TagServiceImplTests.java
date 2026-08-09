@@ -11,6 +11,7 @@ import com.myproject.devlog.utils.TagConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -23,11 +24,13 @@ import static org.mockito.Mockito.*;
 class TagServiceImplTests {
     @Mock
     private TagMapper tagMapper;
+    @Mock
+    private CategoryTagService categoryTagService;
     private TagServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        service = new TagServiceImpl(tagMapper);
+        service = new TagServiceImpl(tagMapper, categoryTagService);
     }
 
     @Test
@@ -45,6 +48,7 @@ class TagServiceImplTests {
         when(tagMapper.countArticleReferences(6L)).thenReturn(2L);
         BusinessException exception = assertThrows(BusinessException.class, () -> service.delete(6L));
         assertEquals("该标签仍被文章引用，无法删除", exception.getMessage());
+        verify(categoryTagService, never()).deleteByTagId(anyLong());
         verify(tagMapper, never()).deleteById(anyLong());
     }
 
@@ -54,19 +58,21 @@ class TagServiceImplTests {
         when(tagMapper.countArticleReferences(7L)).thenReturn(0L);
         when(tagMapper.deleteById(7L)).thenReturn(1);
         service.delete(7L);
-        verify(tagMapper).deleteById(7L);
+        InOrder order = inOrder(categoryTagService, tagMapper);
+        order.verify(categoryTagService).deleteByTagId(7L);
+        order.verify(tagMapper).deleteById(7L);
     }
 
     @Test
     void listMethodsReturnConvertedAndAggregatedValues() {
-        when(tagMapper.listAll()).thenReturn(List.of(tag(1L, "Java")));
+        when(tagMapper.selectList()).thenReturn(List.of(tag(1L, "Java")));
         AdminTagVO admin = new AdminTagVO();
         admin.setId(1L);
         admin.setArticleCount(3L);
-        when(tagMapper.adminListWithArticleCount()).thenReturn(List.of(admin));
+        when(tagMapper.selectAdminListWithArticleCount()).thenReturn(List.of(admin));
 
-        assertEquals("Java", service.listAll().getFirst().getName());
-        assertEquals(3L, service.adminList().getFirst().getArticleCount());
+        assertEquals("Java", service.list().getFirst().getName());
+        assertEquals(3L, service.listAdmin().getFirst().getArticleCount());
     }
 
     @Test
@@ -85,10 +91,12 @@ class TagServiceImplTests {
         when(tagMapper.selectById(1L)).thenReturn(existing);
         when(tagMapper.existsByNameExcludeId("Spring Boot", 1L)).thenReturn(false);
 
+        when(tagMapper.updateById(existing)).thenReturn(1);
+
         service.update(1L, dto);
 
         assertEquals("Spring Boot", existing.getName());
-        verify(tagMapper).update(existing);
+        verify(tagMapper).updateById(existing);
     }
 
     private Tag tag(Long id, String name) {

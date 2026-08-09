@@ -1,5 +1,6 @@
 package com.myproject.devlog.service;
 
+import com.myproject.devlog.common.BusinessException;
 import com.myproject.devlog.mapper.ArticleMapper;
 import com.myproject.devlog.pojo.dto.ArticleCreateDTO;
 import com.myproject.devlog.pojo.entity.Article;
@@ -15,7 +16,7 @@ import java.util.Arrays;
 import static com.myproject.devlog.common.ArticleStatusConstant.DRAFT;
 import static com.myproject.devlog.common.ArticleStatusConstant.PUBLISHED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -40,7 +41,9 @@ class ArticleStatusTests {
         when(mapper.selectFrontDetailById(8L)).thenReturn(null);
         ArticleServiceImpl service = new ArticleServiceImpl(mapper, articleTagService);
 
-        assertNull(service.getFrontDetail(8L));
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> service.getFrontDetail(8L));
+        assertEquals(404, exception.getStatus().value());
         verify(mapper, never()).updateViewCount(8L);
     }
 
@@ -51,6 +54,7 @@ class ArticleStatusTests {
         ArticleDetailVO detail = new ArticleDetailVO();
         detail.setViewCount(3L);
         when(mapper.selectFrontDetailById(9L)).thenReturn(detail);
+        when(mapper.updateViewCount(9L)).thenReturn(1);
         ArticleServiceImpl service = new ArticleServiceImpl(mapper, articleTagService);
 
         assertEquals(4L, service.getFrontDetail(9L).getViewCount());
@@ -59,7 +63,7 @@ class ArticleStatusTests {
 
     @Test
     void publicMapperQueriesExplicitlyRequirePublishedStatus() throws Exception {
-        for (String methodName : new String[]{"frontPage", "countFront", "selectFrontDetailById"}) {
+        for (String methodName : new String[]{"selectFrontPage", "countFront", "selectFrontDetailById"}) {
             Method method = Arrays.stream(ArticleMapper.class.getDeclaredMethods())
                     .filter(candidate -> candidate.getName().equals(methodName))
                     .findFirst().orElseThrow();

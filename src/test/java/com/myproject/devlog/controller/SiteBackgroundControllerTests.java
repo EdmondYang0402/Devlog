@@ -32,10 +32,10 @@ class SiteBackgroundControllerTests {
         vo.setId(1L);
         vo.setImageUrl("https://cdn.example.com/bg.webp");
         vo.setTitle("背景");
-        when(service.getEnabledBackgrounds()).thenReturn(List.of(vo));
+        when(service.listEnabled()).thenReturn(List.of(vo));
         MockMvc mvc = MockMvcBuilders.standaloneSetup(new SiteBackgroundController(service)).build();
 
-        mvc.perform(get("/site/backgrounds"))
+        mvc.perform(get("/site-backgrounds"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data[0].imageUrl").value("https://cdn.example.com/bg.webp"))
@@ -46,9 +46,9 @@ class SiteBackgroundControllerTests {
     @Test
     void adminCrudAndPageRoutesDelegateToService() throws Exception {
         SiteBackgroundService service = mock(SiteBackgroundService.class);
-        when(service.adminPage(any(SiteBackgroundPageQueryDTO.class)))
+        when(service.pageAdmin(any(SiteBackgroundPageQueryDTO.class)))
                 .thenReturn(new PageResult<>(List.of(), 0));
-        when(service.getAdminDetail(7L)).thenReturn(new SiteBackgroundAdminVO());
+        when(service.getAdminById(7L)).thenReturn(new SiteBackgroundAdminVO());
         when(service.create(any(SiteBackgroundCreateDTO.class))).thenReturn(12L);
         MockMvc mvc = MockMvcBuilders.standaloneSetup(new AdminSiteBackgroundController(service)).build();
 
@@ -68,7 +68,7 @@ class SiteBackgroundControllerTests {
                 .andExpect(status().isOk());
         mvc.perform(delete("/admin/site-backgrounds/7")).andExpect(status().isOk());
 
-        verify(service).getAdminDetail(7L);
+        verify(service).getAdminById(7L);
         verify(service).delete(7L);
     }
 }

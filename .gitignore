@@ -34,5 +34,35 @@ build/
 
 ### Local secrets ###
 .env
+.env.*
+!.env.example
 application-local.yml
+application-local.yaml
+application-local.properties
 application-secret.yml
+application-secret.yaml
+application-secret.properties
+
+### Frontend / Node.js / Vite ###
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/.vite/
+*.tsbuildinfo
+
+### Runtime files ###
+*.log
+*.log.*
+*.pid
+*.pid.lock
+hs_err_pid*
+replay_pid*
+
+# User-uploaded runtime data; keep an optional placeholder.
+uploads/*
+!uploads/.gitkeep
+
+### OS-generated files ###
+.DS_Store
+Thumbs.db
+Desktop.ini

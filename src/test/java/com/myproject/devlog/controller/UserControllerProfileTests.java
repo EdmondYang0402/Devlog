@@ -1,7 +1,6 @@
 package com.myproject.devlog.controller;
 
 import com.myproject.devlog.common.Result;
-import com.myproject.devlog.common.UserContext;
 import com.myproject.devlog.pojo.dto.UpdateUserDTO;
 import com.myproject.devlog.pojo.vo.UserInfoVO;
 import com.myproject.devlog.service.UserService;
@@ -14,11 +13,10 @@ import static org.mockito.Mockito.when;
 
 class UserControllerProfileTests {
     @Test
-    void ignoresSubmittedUserIdAndReturnsCurrentUsersLatestProfile() {
+    void delegatesProfileUpdateWithoutResolvingBusinessIdentityInController() {
         UserService userService = mock(UserService.class);
         UserController controller = new UserController(userService);
         UpdateUserDTO request = new UpdateUserDTO();
-        request.setId(999L);
         request.setAvatar("https://example.test/user/avatar/new.webp");
 
         UserInfoVO latest = UserInfoVO.builder()
@@ -27,17 +25,11 @@ class UserControllerProfileTests {
                 .avatar(request.getAvatar())
                 .build();
 
-        UserContext.set(7L);
-        try {
-            when(userService.updateProfile(request)).thenReturn(latest);
+        when(userService.updateProfile(request)).thenReturn(latest);
 
-            Result<UserInfoVO> result = controller.updateProfile(request);
+        Result<UserInfoVO> result = controller.updateProfile(request);
 
-            assertThat(request.getId()).isEqualTo(7L);
-            assertThat(result.getData()).isSameAs(latest);
-            verify(userService).updateProfile(request);
-        } finally {
-            UserContext.clear();
-        }
+        assertThat(result.getData()).isSameAs(latest);
+        verify(userService).updateProfile(request);
     }
 }

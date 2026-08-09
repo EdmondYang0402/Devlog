@@ -87,12 +87,12 @@ public class JwtInterceptor implements HandlerInterceptor {
             return false;
         }
         String path = request.getRequestURI();
-        return "/user/login".equals(path) || "/user/register".equals(path);
+        return "/users/login".equals(path) || "/users/register".equals(path);
     }
 
     private boolean isPublicSiteBackgroundRead(HttpServletRequest request) {
         return HttpMethod.GET.matches(request.getMethod())
-                && "/site/backgrounds".equals(request.getRequestURI());
+                && "/site-backgrounds".equals(request.getRequestURI());
     }
 
     @Override

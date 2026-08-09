@@ -7,6 +7,7 @@ import com.myproject.devlog.pojo.dto.SiteBackgroundPageQueryDTO;
 import com.myproject.devlog.pojo.dto.SiteBackgroundUpdateDTO;
 import com.myproject.devlog.pojo.vo.SiteBackgroundAdminVO;
 import com.myproject.devlog.service.SiteBackgroundService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -29,22 +30,22 @@ public class AdminSiteBackgroundController {
 
     @GetMapping
     public Result<PageResult<SiteBackgroundAdminVO>> page(
-            @ModelAttribute SiteBackgroundPageQueryDTO query) {
-        return Result.success(service.adminPage(query));
+            @Valid @ModelAttribute SiteBackgroundPageQueryDTO query) {
+        return Result.success(service.pageAdmin(query));
     }
 
     @GetMapping("/{id}")
     public Result<SiteBackgroundAdminVO> detail(@PathVariable Long id) {
-        return Result.success(service.getAdminDetail(id));
+        return Result.success(service.getAdminById(id));
     }
 
     @PostMapping
-    public Result<Long> create(@RequestBody SiteBackgroundCreateDTO dto) {
+    public Result<Long> create(@Valid @RequestBody SiteBackgroundCreateDTO dto) {
         return Result.success(service.create(dto));
     }
 
     @PutMapping("/{id}")
-    public Result<Void> update(@PathVariable Long id, @RequestBody SiteBackgroundUpdateDTO dto) {
+    public Result<Void> update(@PathVariable Long id, @Valid @RequestBody SiteBackgroundUpdateDTO dto) {
         service.update(id, dto);
         return Result.success();
     }

@@ -8,7 +8,7 @@ const request = axios.create({
 request.interceptors.request.use(config => {
     const token = localStorage.getItem('token')
     const normalizedToken = token?.trim()
-    const anonymousPaths = ['/user/login', '/user/register']
+    const anonymousPaths = ['/users/login', '/users/register']
     const isAnonymousRequest = anonymousPaths.some(path => config.url === path)
 
     if (!isAnonymousRequest &&

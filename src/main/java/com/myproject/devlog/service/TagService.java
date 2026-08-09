@@ -2,6 +2,7 @@ package com.myproject.devlog.service;
 
 import com.myproject.devlog.pojo.dto.TagCreateDTO;
 import com.myproject.devlog.pojo.dto.TagUpdateDTO;
+import com.myproject.devlog.pojo.entity.Tag;
 import com.myproject.devlog.pojo.vo.AdminTagVO;
 import com.myproject.devlog.pojo.vo.TagVO;
 
@@ -11,6 +12,7 @@ public interface TagService {
     void create(TagCreateDTO dto);
     void update(Long id, TagUpdateDTO dto);
     void delete(Long id);
-    List<TagVO> listAll();
-    List<AdminTagVO> adminList();
+    List<Tag> getByCategoryId(Long categoryId);
+    List<TagVO> list();
+    List<AdminTagVO> listAdmin();
 }

@@ -32,7 +32,7 @@ class SiteBackgroundServiceImplTests {
     void setUp() {
         mapper = mock(SiteBackgroundMapper.class);
         SiteBackgroundValidator validator = new SiteBackgroundValidator();
-        service = new SiteBackgroundServiceImpl(mapper, new SiteBackgroundConverter(validator), validator);
+        service = new SiteBackgroundServiceImpl(mapper, new SiteBackgroundConverter(validator));
     }
 
     @Test
@@ -52,7 +52,7 @@ class SiteBackgroundServiceImplTests {
     @Test
     void createRejectsUnexpectedAffectedRows() {
         when(mapper.insert(any(SiteBackground.class))).thenReturn(0);
-        assertThrows(BusinessException.class,
+        assertThrows(IllegalStateException.class,
                 () -> service.create(createDTO("https://cdn.example.com/bg.webp")));
     }
 
@@ -60,7 +60,7 @@ class SiteBackgroundServiceImplTests {
     void missingBackgroundUsesNotFoundStatus() {
         when(mapper.selectById(9L)).thenReturn(null);
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> service.getAdminDetail(9L));
+                () -> service.getAdminById(9L));
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
         assertEquals("背景图片记录不存在", exception.getMessage());
     }
@@ -69,12 +69,12 @@ class SiteBackgroundServiceImplTests {
     void updateAndDeleteCheckExistingRecordAndAffectedRows() {
         SiteBackground existing = entity(7L, 1, 0);
         when(mapper.selectById(7L)).thenReturn(existing);
-        when(mapper.update(existing)).thenReturn(1);
+        when(mapper.updateById(existing)).thenReturn(1);
         SiteBackgroundUpdateDTO dto = new SiteBackgroundUpdateDTO();
         dto.setImageUrl("https://cdn.example.com/new.webp");
         dto.setEnabled(0);
         service.update(7L, dto);
-        verify(mapper).update(existing);
+        verify(mapper).updateById(existing);
 
         when(mapper.deleteById(7L)).thenReturn(1);
         service.delete(7L);
@@ -95,18 +95,18 @@ class SiteBackgroundServiceImplTests {
         query.setSize(10);
         query.setKeyword(" 首页 ");
         query.setEnabled(1);
-        when(mapper.adminPage(10, 10, "首页", 1)).thenReturn(List.of(entity(1L, 1, 3)));
-        when(mapper.adminCount("首页", 1)).thenReturn(1L);
+        when(mapper.selectAdminPage(10, 10, "首页", 1)).thenReturn(List.of(entity(1L, 1, 3)));
+        when(mapper.countAdmin("首页", 1)).thenReturn(1L);
 
-        assertEquals(1L, service.adminPage(query).getTotal());
-        verify(mapper).adminPage(10, 10, "首页", 1);
-        verify(mapper).adminCount("首页", 1);
+        assertEquals(1L, service.pageAdmin(query).getTotal());
+        verify(mapper).selectAdminPage(10, 10, "首页", 1);
+        verify(mapper).countAdmin("首页", 1);
     }
 
     @Test
     void enabledListUsesDedicatedMapperQueryAndPublicVo() {
         when(mapper.selectEnabledList()).thenReturn(List.of(entity(2L, 1, 9)));
-        var result = service.getEnabledBackgrounds();
+        var result = service.listEnabled();
         assertEquals(1, result.size());
         assertEquals(2L, result.getFirst().getId());
         verify(mapper).selectEnabledList();
@@ -115,7 +115,7 @@ class SiteBackgroundServiceImplTests {
     @Test
     void enabledListReturnsEmptyListInsteadOfNull() {
         when(mapper.selectEnabledList()).thenReturn(null);
-        assertEquals(List.of(), service.getEnabledBackgrounds());
+        assertEquals(List.of(), service.listEnabled());
     }
 
     private SiteBackgroundCreateDTO createDTO(String imageUrl) {

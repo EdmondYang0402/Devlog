@@ -20,6 +20,6 @@ public class TagController {
 
     @GetMapping
     public Result<List<TagVO>> list() {
-        return Result.success(tagService.listAll());
+        return Result.success(tagService.list());
     }
 }

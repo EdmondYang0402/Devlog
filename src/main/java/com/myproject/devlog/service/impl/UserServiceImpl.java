@@ -45,17 +45,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserLoginVO login(UserLoginDTO dto) {
-        if (dto.getUsername() == null || dto.getPassword() == null) {
-            throw new RuntimeException("账户名和密码不能为空");
+        User user = userMapper.selectByUsername(dto.getUsername());
+        if (user == null || !passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+            throw new BusinessException(HttpStatus.UNAUTHORIZED, "用户名或密码错误");
         }
-
-        User user = userMapper.getByUsername(dto.getUsername());
-        if (user == null) {
-            throw new RuntimeException("用户尚未注册");
-        }
-
-        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new RuntimeException("密码错误");
+        if (Integer.valueOf(1).equals(user.getStatus())) {
+            throw new BusinessException(HttpStatus.FORBIDDEN, "账号已被封禁");
         }
 
         String sessionId = loginSessionService.createSession(user.getId());
@@ -71,31 +66,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void register(UserRegisterDTO dto) {
-        if (dto.getUsername() == null || dto.getUsername().isBlank()) {
-            throw new BusinessException("用户名不能为空");
-        }
-        if (dto.getEmail() == null || dto.getEmail().isBlank()) {
-            throw new BusinessException("邮箱不能为空");
-        }
-        if (dto.getPassword() == null || dto.getPassword().isBlank()) {
-            throw new BusinessException("密码不能为空");
-        }
-
         String username = dto.getUsername().trim();
         String email = dto.getEmail().trim();
+        // DTO 校验原始长度；这里保留规范化后的长度校验，防止首尾空格掩盖过短用户名。
         if (username.length() < 5 || username.length() > 16) {
             throw new BusinessException("用户名长度必须为 5~16 位");
         }
-        if (dto.getPassword().length() < 5 || dto.getPassword().length() > 16) {
-            throw new BusinessException("密码长度必须为 5~16 位");
-        }
         log.info("Register service started: username={}, email={}", username, email);
 
-        if (userMapper.getByUsername(username) != null) {
-            throw new BusinessException("用户名已存在");
+        if (userMapper.selectByUsername(username) != null) {
+            throw new BusinessException(HttpStatus.CONFLICT, "用户名已存在");
         }
-        if (userMapper.getByEmail(email) != null) {
-            throw new BusinessException("邮箱已被注册");
+        if (userMapper.selectByEmail(email) != null) {
+            throw new BusinessException(HttpStatus.CONFLICT, "邮箱已被注册");
         }
 
         User user = new User();
@@ -105,36 +88,74 @@ public class UserServiceImpl implements UserService {
         user.setRole(USER);
         user.setStatus(NORMAL);
         try {
-            userMapper.insert(user);
+            if (userMapper.insert(user) != 1) {
+                throw new IllegalStateException("用户注册未影响预期记录数");
+            }
         } catch (DataIntegrityViolationException exception) {
             // 先查询可提供明确提示；数据库唯一约束仍负责兜住并发注册竞争。
-            throw new BusinessException("用户名或邮箱已存在");
+            throw new BusinessException(HttpStatus.CONFLICT, "用户名或邮箱已存在");
         }
         log.info("Register mapper insert succeeded: username={}, email={}", username, email);
     }
 
     @Override
     public UserInfoVO getInfo(Long id) {
-        return userConverter.toUserInfoVO(userMapper.getById(id));
+        if (id == null) {
+            throw new BusinessException(HttpStatus.NOT_FOUND, "用户不存在");
+        }
+        User user = userMapper.selectById(id);
+        if (user == null) {
+            throw new BusinessException(HttpStatus.NOT_FOUND, "用户不存在");
+        }
+        return userConverter.toUserInfoVO(user);
+    }
+
+    @Override
+    public UserInfoVO getCurrentUserInfo() {
+        Long userId = UserContext.get();
+        if (userId == null) {
+            throw new BusinessException(HttpStatus.UNAUTHORIZED, "未登录");
+        }
+        return getInfo(userId);
     }
 
 
     @Override
     public UserInfoVO updateProfile(UpdateUserDTO dto) {
-        userMapper.update(userConverter.toUser(dto));
-        return getInfo(dto.getId());
+        Long userId = UserContext.get();
+        if (userId == null) {
+            throw new BusinessException(HttpStatus.UNAUTHORIZED, "未登录");
+        }
+        if (userMapper.selectById(userId) == null) {
+            throw new BusinessException(HttpStatus.NOT_FOUND, "用户不存在");
+        }
+        User update = userConverter.fromProfileUpdateDTO(dto);
+        update.setId(userId);
+        if (userMapper.updateById(update) != 1) {
+            throw new IllegalStateException("用户资料更新未影响预期记录数");
+        }
+        return getInfo(userId);
     }
 
     @Override
     public void changePassword(ChangePasswordDTO dto) {
-        User user = userMapper.getById(UserContext.get());
+        Long userId = UserContext.get();
+        if (userId == null) {
+            throw new BusinessException(HttpStatus.UNAUTHORIZED, "未登录");
+        }
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(HttpStatus.NOT_FOUND, "用户不存在");
+        }
         if (!passwordEncoder.matches(dto.getOldPassword(), user.getPassword())) {
-            throw new RuntimeException("旧密码错误");
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "旧密码错误");
         }
         User update = new User();
         update.setId(user.getId());
         update.setPassword(passwordEncoder.encode(dto.getNewPassword()));
-        userMapper.update(update);
+        if (userMapper.updateById(update) != 1) {
+            throw new IllegalStateException("密码更新未影响预期记录数");
+        }
     }
 
     @Override
@@ -160,19 +181,30 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getByUsername(String username) {
-        return userMapper.getByUsername(username);
+        return userMapper.selectByUsername(username);
     }
 
     @Override
     public User getById(Long id) {
-        return userMapper.getById(id);
+        return userMapper.selectById(id);
     }
 
     @Override
     public void updateStatus(Long userId, Integer status) {
+        if (userId == null) {
+            throw new BusinessException(HttpStatus.NOT_FOUND, "用户不存在");
+        }
+        if (status == null || (status != 0 && status != 1)) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "用户状态不合法");
+        }
+        if (userMapper.selectById(userId) == null) {
+            throw new BusinessException(HttpStatus.NOT_FOUND, "用户不存在");
+        }
         User user = new User();
         user.setId(userId);
         user.setStatus(status);
-        userMapper.update(user);
+        if (userMapper.updateById(user) != 1) {
+            throw new IllegalStateException("用户状态更新未影响预期记录数");
+        }
     }
 }

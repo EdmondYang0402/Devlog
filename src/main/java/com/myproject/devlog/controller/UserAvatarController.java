@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/user/avatar")
+@RequestMapping("/users/avatar")
 public class UserAvatarController {
     private static final Logger log = LoggerFactory.getLogger(UserAvatarController.class);
 
@@ -30,7 +30,7 @@ public class UserAvatarController {
                 file.getContentType(),
                 file.getSize()
         );
-        // /user/** 继续经过现有 JWT/Redis 拦截器，只为当前登录用户提供头像文件上传。
+        // /users/** 继续经过现有 JWT/Redis 拦截器，只为当前登录用户提供头像文件上传。
         return Result.success(storageService.uploadAvatar(file));
     }
 }
