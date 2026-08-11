@@ -4,14 +4,21 @@ export default {
     loading: '加载中…', noData: '暂无数据', retry: '重试', back: '返回', backToTop: '返回顶部',
     search: '搜索', refresh: '刷新', delete: '删除'
   },
+  music: {
+    label: '音乐', title: 'DevLog BGM', platform: '网易云音乐',
+    expand: '展开播放器', collapse: '收起播放器',
+    playerLabel: 'DevLog 网易云歌单播放器', unavailable: '播放器暂时不可用'
+  },
   nav: {
     media: '作品档案', notes: '手记',
     home: '首页', archive: '归档', about: '关于', login: '登录', logout: '退出登录',
     admin: '后台管理', profile: '个人资料', changePassword: '修改密码',
-    search: '搜索', userMenu: '用户菜单', user: '用户', avatar: '用户头像',
+    search: '搜索', showNavigation: '显示导航', userMenu: '用户菜单', user: '用户', avatar: '用户头像',
     noBio: '暂无个人简介'
   },
   home: {
+    hideInterface: '隐藏界面，只显示背景',
+    restoreInterface: '恢复首页界面',
     latestArticles: '最新文章', all: '全部', articles: '文章', categories: '分类',
     comments: '评论', clock: '电子时钟', announcement: '公告',
     noAnnouncement: '暂无公告', randomArticles: '随机文章',
@@ -34,8 +41,7 @@ export default {
     emptyHint: '换个关键词或分类试试看吧。', loadFailed: '归档加载失败'
   },
   notes: {
-    title: '手记', eyebrow: 'NOTES · 沿途记录',
-    subtitle: '记录开发、学习、生活与沿途所想。',
+    title: '手记',
     description: '项目开发、计算机学习、个人生活与阶段思考记录。',
     readMore: '阅读全文', empty: '这里还没有手记。', loadFailed: '手记加载失败，请稍后重试。',
     published: '发布于', views: '阅读', categoryMissing: '“手记”分类尚未初始化。'

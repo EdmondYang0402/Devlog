@@ -15,25 +15,30 @@ const cardStyle = computed(() => props.profile.profileBackgroundUrl ? {
 
 <template>
   <article class="profile-panel glass-panel" :style="cardStyle">
-    <div class="profile-identity">
-      <img v-if="profile.avatarUrl" :src="profile.avatarUrl" :alt="profile.authorName" />
+    <div class="profile-avatar-shell">
+      <img v-if="profile.avatarUrl" :src="profile.avatarUrl" :alt="profile.authorName || 'Hathaway'" />
       <span v-else class="profile-fallback">{{ initial }}</span>
-      <div>
-        <p class="panel-kicker">{{ profile.siteTitle }}</p>
-        <h1>{{ profile.authorName }}</h1>
-        <p class="profile-bio">{{ profile.authorBio }}</p>
-      </div>
     </div>
-    <div class="profile-foot">
-      <div class="profile-stats">
-        <span><strong>{{ stats.posts }}</strong>{{ t('home.articles') }}</span>
-        <span><strong>{{ stats.categories }}</strong>{{ t('home.categories') }}</span>
-        <span><strong>{{ stats.comments }}</strong>{{ t('home.comments') }}</span>
-      </div>
-      <div v-if="profile.githubUrl || profile.giteeUrl" class="profile-links">
-        <a v-if="profile.githubUrl" :href="profile.githubUrl" target="_blank" rel="noopener noreferrer">GitHub</a>
-        <a v-if="profile.giteeUrl" :href="profile.giteeUrl" target="_blank" rel="noopener noreferrer">Gitee</a>
-      </div>
+
+    <div class="profile-content">
+      <h1 class="profile-title">Hathaway’s Blog</h1>
+      <dl class="profile-stats">
+        <div class="profile-stat">
+          <i class="ti ti-file-text" aria-hidden="true"></i>
+          <dd>{{ stats.posts }}</dd>
+          <dt>{{ t('home.articles') }}</dt>
+        </div>
+        <div class="profile-stat">
+          <i class="ti ti-folders" aria-hidden="true"></i>
+          <dd>{{ stats.categories }}</dd>
+          <dt>{{ t('home.categories') }}</dt>
+        </div>
+        <div class="profile-stat">
+          <i class="ti ti-message-circle" aria-hidden="true"></i>
+          <dd>{{ stats.comments }}</dd>
+          <dt>{{ t('home.comments') }}</dt>
+        </div>
+      </dl>
     </div>
   </article>
 </template>

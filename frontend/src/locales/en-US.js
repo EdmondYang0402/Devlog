@@ -4,14 +4,21 @@ export default {
     loading: 'Loading…', noData: 'No data', retry: 'Retry', back: 'Back', backToTop: 'Back to top',
     search: 'Search', refresh: 'Refresh', delete: 'Delete'
   },
+  music: {
+    label: 'Music', title: 'DevLog BGM', platform: 'NetEase Cloud Music',
+    expand: 'Expand player', collapse: 'Collapse player',
+    playerLabel: 'DevLog NetEase playlist player', unavailable: 'The player is temporarily unavailable'
+  },
   nav: {
     media: 'Media Log', notes: 'Notes',
     home: 'Home', archive: 'Archive', about: 'About', login: 'Log in', logout: 'Log out',
     admin: 'Admin', profile: 'Profile', changePassword: 'Change password',
-    search: 'Search', userMenu: 'User menu', user: 'User', avatar: 'User avatar',
+    search: 'Search', showNavigation: 'Show navigation', userMenu: 'User menu', user: 'User', avatar: 'User avatar',
     noBio: 'No profile yet'
   },
   home: {
+    hideInterface: 'Hide the interface and show only the background',
+    restoreInterface: 'Restore the home interface',
     latestArticles: 'Latest articles', all: 'All', articles: 'Articles', categories: 'Categories',
     comments: 'Comments', clock: 'Clock', announcement: 'Announcement',
     noAnnouncement: 'No announcements', randomArticles: 'More articles',
@@ -35,8 +42,7 @@ export default {
     emptyHint: 'Try another keyword or category.', loadFailed: 'Failed to load the archive'
   },
   notes: {
-    title: 'Notes', eyebrow: 'NOTES · ALONG THE WAY',
-    subtitle: 'Notes on development, learning, daily life, and thoughts along the way.',
+    title: 'Notes',
     description: 'Notes on personal projects, computer science, daily life, and reflections.',
     readMore: 'Read more', empty: 'No notes yet', loadFailed: 'Failed to load notes',
     published: 'Published', views: 'Views', categoryMissing: 'The Notes category has not been initialized yet.'

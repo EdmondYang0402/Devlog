@@ -4,14 +4,21 @@ export default {
     loading: '読み込み中…', noData: 'データがありません', retry: '再試行', back: '戻る', backToTop: 'ページ上部へ戻る',
     search: '検索', refresh: '更新', delete: '削除'
   },
+  music: {
+    label: '音楽', title: 'DevLog BGM', platform: 'NetEase Cloud Music',
+    expand: 'プレーヤーを開く', collapse: 'プレーヤーを閉じる',
+    playerLabel: 'DevLog NetEase プレイリストプレーヤー', unavailable: 'プレーヤーは一時的に利用できません'
+  },
   nav: {
     media: '作品記録', notes: 'ノート',
     home: 'ホーム', archive: 'アーカイブ', about: 'このサイトについて', login: 'ログイン',
     logout: 'ログアウト', admin: '管理画面', profile: 'プロフィール',
-    changePassword: 'パスワード変更', search: '検索', userMenu: 'ユーザーメニュー',
+    changePassword: 'パスワード変更', search: '検索', showNavigation: 'ナビゲーションを表示', userMenu: 'ユーザーメニュー',
     user: 'ユーザー', avatar: 'ユーザーアイコン', noBio: 'プロフィールはまだありません'
   },
   home: {
+    hideInterface: '画面を隠して背景のみ表示',
+    restoreInterface: 'ホーム画面を復元',
     latestArticles: '最新の記事', all: 'すべて', articles: '記事', categories: 'カテゴリー',
     comments: 'コメント', clock: '時計', announcement: 'お知らせ',
     noAnnouncement: 'お知らせはありません', randomArticles: 'おすすめ記事',
@@ -35,8 +42,7 @@ export default {
     emptyHint: '別のキーワードやカテゴリーをお試しください。', loadFailed: 'アーカイブを読み込めませんでした'
   },
   notes: {
-    title: 'ノート', eyebrow: 'NOTES · 道すがらの記録',
-    subtitle: '開発、学習、日常、そしてその途中で考えたことを記録します。',
+    title: 'ノート',
     description: 'プロジェクト開発、コンピューター学習、日常生活、節目の思考を記録します。',
     readMore: '続きを読む', empty: 'まだノートはありません', loadFailed: '読み込みに失敗しました',
     published: '公開日', views: '閲覧', categoryMissing: '「ノート」カテゴリーがまだ初期化されていません。'

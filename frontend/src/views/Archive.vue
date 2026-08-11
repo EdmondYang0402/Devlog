@@ -391,24 +391,26 @@ onUnmounted(() => clearTimeout(searchTimer))
   isolation: isolate;
   display: grid;
   align-items: center;
-  min-height: clamp(280px, 32vw, 340px);
-  padding: clamp(42px, 7vw, 72px);
+  width: min(520px, 58%);
+  min-height: 240px;
+  margin-left: 8%;
+  padding: clamp(32px, 5vw, 48px);
   overflow: hidden;
-  background:
-    linear-gradient(90deg, rgba(8,11,19,.86) 0%, rgba(8,11,19,.62) 46%, rgba(8,11,19,.18) 100%),
-    linear-gradient(0deg, rgba(8,11,19,.32), transparent 56%);
-  border: 1px solid rgba(255,255,255,.14);
-  border-radius: 26px;
-  box-shadow: 0 18px 44px rgba(5,8,16,.18);
+  background: linear-gradient(135deg, rgba(20,24,35,.32), rgba(20,24,35,.2));
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 28px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.12);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
 }
 .archive-header::after {
   position: absolute;
-  right: 7%;
-  bottom: -82px;
+  right: -18px;
+  bottom: -56px;
   z-index: 0;
-  width: 176px;
-  height: 176px;
-  border: 1px solid rgba(244,238,217,.36);
+  width: 118px;
+  height: 118px;
+  border: 1px solid rgba(244,238,217,.28);
   border-left-color: transparent;
   border-radius: 50%;
   content: '';
@@ -417,8 +419,8 @@ onUnmounted(() => clearTimeout(searchTimer))
 .archive-heading {
   position: relative;
   z-index: 1;
-  width: min(100%, 620px);
-  padding-left: clamp(28px, 4vw, 46px);
+  width: 100%;
+  padding-left: clamp(26px, 3vw, 34px);
 }
 .archive-heading::before {
   position: absolute;
@@ -441,7 +443,7 @@ onUnmounted(() => clearTimeout(searchTimer))
 .archive-heading h1 {
   margin: 0;
   color: #f7f5ef;
-  font-size: clamp(64px, 8.5vw, 88px);
+  font-size: clamp(58px, 7vw, 76px);
   font-weight: 800;
   line-height: .96;
   letter-spacing: -.065em;
@@ -449,11 +451,11 @@ onUnmounted(() => clearTimeout(searchTimer))
 .archive-meta {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-top: 26px;
+  gap: 12px;
+  margin-top: 22px;
 }
 .archive-rule {
-  width: clamp(54px, 8vw, 84px);
+  width: clamp(48px, 6vw, 62px);
   height: 1px;
   background: rgba(255,255,255,.44);
 }
@@ -481,7 +483,7 @@ onUnmounted(() => clearTimeout(searchTimer))
 .archive-search {
   width: min(620px, 100%);
   height: 44px;
-  margin: 18px auto 12px;
+  margin: 20px auto 12px;
   padding: 0 13px;
   background: rgba(255,255,255,.24);
   border-color: rgba(255,255,255,.28);
@@ -537,8 +539,8 @@ onUnmounted(() => clearTimeout(searchTimer))
 
 @media (max-width: 780px) {
   .archive-page { width: min(100% - 24px, 960px); padding: 22px 0 48px; }
-  .archive-header { min-height: 250px; padding: 38px 34px; border-radius: 22px; }
-  .archive-heading h1 { font-size: clamp(54px, 11vw, 68px); }
+  .archive-header { width: 68%; min-height: 220px; margin-left: 4%; padding: 32px; border-radius: 24px; }
+  .archive-heading h1 { font-size: clamp(52px, 10vw, 64px); }
   .filter-toolbar { display: block; }
   .filter-actions { justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,.16); }
   .tag-filter-select { width: min(240px, 46vw); }
@@ -546,15 +548,15 @@ onUnmounted(() => clearTimeout(searchTimer))
 }
 @media (max-width: 520px) {
   .archive-page { width: calc(100% - 20px); padding-top: 16px; }
-  .archive-header { min-height: 210px; padding: 30px 24px; border-radius: 18px; }
+  .archive-header { width: calc(100% - 32px); min-height: 190px; margin: 0 auto; padding: 26px 22px; border-radius: 22px; }
   .archive-header::after { display: none; }
   .archive-heading { padding-left: 24px; }
   .archive-heading::after { height: 22px; }
-  .archive-heading h1 { font-size: clamp(44px, 14vw, 56px); }
-  .archive-meta { gap: 10px; margin-top: 20px; }
+  .archive-heading h1 { font-size: clamp(44px, 14vw, 54px); }
+  .archive-meta { gap: 10px; margin-top: 18px; }
   .archive-rule { width: 40px; }
   .article-count { font-size: 11px; letter-spacing: .04em; }
-  .archive-search { width: 100%; margin-top: 10px; }
+  .archive-search { width: 100%; margin-top: 16px; }
   .filter-actions { align-items: stretch; flex-direction: column; }
   .tag-filter-control { width: 100%; }
   .tag-filter-select { width: 100%; }

@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { SUPPORTED_LOCALES, setLocale } from '@/locales/index.js'
 
 const { locale, t } = useI18n()
+const emit = defineEmits(['visibility-change'])
 const currentLocale = computed(
   () => SUPPORTED_LOCALES.find(item => item.value === locale.value) || SUPPORTED_LOCALES[0]
 )
@@ -16,6 +17,7 @@ const handleCommand = value => setLocale(value)
     placement="bottom-end"
     popper-class="language-menu-popper"
     @command="handleCommand"
+    @visible-change="visible => emit('visibility-change', visible)"
   >
     <button
       class="language-switcher"

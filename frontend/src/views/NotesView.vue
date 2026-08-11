@@ -141,9 +141,7 @@ onMounted(loadNotes)
   <main class="notes-page">
     <header class="notes-hero" aria-labelledby="notes-title">
       <div class="notes-hero-copy">
-        <p class="notes-eyebrow">{{ t('notes.eyebrow') }}</p>
         <h1 id="notes-title">{{ t('notes.title') }}</h1>
-        <p>{{ t('notes.subtitle') }}</p>
       </div>
       <div class="bauhaus-mark" aria-hidden="true">
         <span></span><i></i><b></b>
@@ -238,17 +236,15 @@ onMounted(loadNotes)
 
 <style scoped>
 .notes-page { width:min(1080px,calc(100% - 40px)); min-height:calc(100vh - var(--nav-h)); margin:0 auto; padding:44px 0 76px; }
-.notes-hero { position:relative; display:flex; align-items:flex-end; justify-content:space-between; min-height:210px; padding:38px clamp(26px,5vw,56px); overflow:hidden; background:color-mix(in srgb,var(--bg-card) 74%,transparent); border:1px solid var(--article-card-border); border-radius:24px; box-shadow:0 12px 34px color-mix(in srgb,var(--shadow-color) 68%,transparent); backdrop-filter:blur(18px) saturate(108%); }
-.notes-hero::after { position:absolute; right:18%; bottom:-1px; width:1px; height:72%; content:''; background:var(--border); }
+.notes-hero { position:relative; display:flex; align-items:center; justify-content:space-between; min-height:190px; padding:32px clamp(40px,5vw,56px); overflow:hidden; background:linear-gradient(135deg,color-mix(in srgb,var(--bg-card) 62%,transparent),color-mix(in srgb,var(--bg-card) 48%,transparent)); border:1px solid color-mix(in srgb,var(--text-1) 10%,transparent); border-radius:30px; box-shadow:0 14px 34px color-mix(in srgb,var(--shadow-color) 38%,transparent); -webkit-backdrop-filter:blur(14px) saturate(106%); backdrop-filter:blur(14px) saturate(106%); }
+.notes-hero::after { position:absolute; right:18%; bottom:12%; width:1px; height:62%; content:''; background:color-mix(in srgb,var(--text-2) 34%,transparent); }
 .notes-hero-copy { position:relative; z-index:1; max-width:680px; }
-.notes-eyebrow { margin:0 0 8px; color:var(--text-3); font-size:10px; font-weight:700; letter-spacing:.16em; }
-.notes-hero h1 { margin:0; color:var(--text-1); font-size:clamp(36px,6vw,64px); font-weight:650; letter-spacing:-.045em; line-height:1; }
-.notes-hero-copy>p:last-child { margin:18px 0 0; color:var(--text-2); font-size:14px; }
-.bauhaus-mark { position:relative; z-index:1; width:94px; height:94px; flex:0 0 auto; }
+.notes-hero h1 { margin:0; color:color-mix(in srgb,var(--text-1) 92%,transparent); font-size:clamp(64px,7vw,82px); font-weight:760; letter-spacing:-.055em; line-height:.96; }
+.bauhaus-mark { position:relative; z-index:1; width:88px; height:88px; flex:0 0 auto; margin-right:4px; opacity:.82; }
 .bauhaus-mark span,.bauhaus-mark i,.bauhaus-mark b { position:absolute; display:block; }
-.bauhaus-mark span { top:0; right:0; width:52px; height:52px; border:1px solid var(--text-2); border-radius:50%; }
-.bauhaus-mark i { right:42px; bottom:0; width:40px; height:40px; background:var(--text-1); opacity:.82; }
-.bauhaus-mark b { right:0; bottom:10px; width:30px; height:1px; background:var(--text-2); transform:rotate(-45deg); }
+.bauhaus-mark span { top:0; right:0; width:50px; height:50px; border:1px solid color-mix(in srgb,var(--text-2) 54%,transparent); border-radius:50%; }
+.bauhaus-mark i { right:40px; bottom:0; width:38px; height:38px; background:color-mix(in srgb,var(--text-1) 28%,transparent); border:1px solid color-mix(in srgb,var(--text-2) 28%,transparent); }
+.bauhaus-mark b { right:0; bottom:10px; width:28px; height:1px; background:color-mix(in srgb,var(--text-2) 52%,transparent); transform:rotate(-45deg); }
 .notes-content { margin-top:34px; }
 .notes-timeline { position:relative; }
 .notes-month { display:grid; grid-template-columns:160px minmax(0,1fr); gap:30px; }
@@ -283,10 +279,10 @@ onMounted(loadNotes)
 .notes-pagination { justify-content:center; margin-top:8px; }
 @keyframes notes-spin { to { transform:rotate(360deg); } }
 @media(max-width:767px){
-  .notes-page{width:calc(100% - 24px);padding:24px 0 54px}.notes-hero{min-height:180px;padding:26px 22px;border-radius:20px}.bauhaus-mark{width:70px;height:70px;opacity:.75}.bauhaus-mark span{width:42px;height:42px}.bauhaus-mark i{right:34px;width:30px;height:30px}.notes-content{margin-top:24px}.notes-month{display:block}.month-marker{display:flex;align-items:center;gap:10px;padding:0 2px 10px;text-align:left}.month-marker::after{display:none}.month-marker i{position:static;width:7px;height:7px;order:-1}.month-notes{padding-bottom:24px}.note-card.has-cover{grid-template-columns:minmax(0,1fr) 150px}.note-copy{padding:18px}.note-footer{align-items:flex-start;flex-direction:column;gap:10px}.note-actions{width:100%;justify-content:space-between}
+  .notes-page{width:calc(100% - 24px);padding:24px 0 54px}.notes-hero{min-height:168px;padding:28px 30px;border-radius:24px}.notes-hero h1{font-size:clamp(52px,11vw,68px)}.bauhaus-mark{width:68px;height:68px;margin-right:0;opacity:.64}.bauhaus-mark span{width:40px;height:40px}.bauhaus-mark i{right:32px;width:29px;height:29px}.notes-content{margin-top:24px}.notes-month{display:block}.month-marker{display:flex;align-items:center;gap:10px;padding:0 2px 10px;text-align:left}.month-marker::after{display:none}.month-marker i{position:static;width:7px;height:7px;order:-1}.month-notes{padding-bottom:24px}.note-card.has-cover{grid-template-columns:minmax(0,1fr) 150px}.note-copy{padding:18px}.note-footer{align-items:flex-start;flex-direction:column;gap:10px}.note-actions{width:100%;justify-content:space-between}
 }
 @media(max-width:520px){
-  .notes-hero::after{display:none}.bauhaus-mark{position:absolute;right:18px;top:18px;opacity:.25}.notes-hero-copy>p:last-child{max-width:88%;font-size:12px}.note-card.has-cover{grid-template-columns:1fr}.note-cover{grid-row:1;height:150px;border-bottom:1px solid var(--border);border-left:0}.note-cover img{min-height:0}.note-meta{align-items:flex-start;flex-direction:column;gap:5px}.note-copy h2{font-size:19px}
+  .notes-hero{min-height:148px;padding:24px;border-radius:22px}.notes-hero::after{display:none}.notes-hero h1{font-size:clamp(46px,14vw,58px)}.bauhaus-mark{position:absolute;right:18px;top:18px;transform:scale(.82);transform-origin:top right;opacity:.28}.note-card.has-cover{grid-template-columns:1fr}.note-cover{grid-row:1;height:150px;border-bottom:1px solid var(--border);border-left:0}.note-cover img{min-height:0}.note-meta{align-items:flex-start;flex-direction:column;gap:5px}.note-copy h2{font-size:19px}
 }
 @media(prefers-reduced-motion:reduce){.note-card,.note-cover img{transition:none}.notes-loader{animation:none}}
 </style>
