@@ -16,17 +16,17 @@ class SensitiveWriteMappingTests {
     @Test
     void profileUpdateUsesExplicitAllowlist() {
         UpdateUserDTO dto = new UpdateUserDTO();
+        dto.setNickname("用户昵称");
         dto.setAvatar("https://example.test/avatar.webp");
-        dto.setBio("个人简介");
-        dto.setEmail("user@example.com");
 
         User result = new UserConverter().fromProfileUpdateDTO(dto);
 
+        assertEquals(dto.getNickname(), result.getNickname());
         assertEquals(dto.getAvatar(), result.getAvatar());
-        assertEquals(dto.getBio(), result.getBio());
-        assertEquals(dto.getEmail(), result.getEmail());
         assertNull(result.getId());
         assertNull(result.getUsername());
+        assertNull(result.getEmail());
+        assertNull(result.getBio());
         assertNull(result.getPassword());
         assertNull(result.getRole());
         assertNull(result.getStatus());

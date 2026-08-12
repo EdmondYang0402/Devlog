@@ -23,7 +23,7 @@ const searchValue = ref('')
 watch(() => userInfo.value?.avatar, () => { avatarLoadFailed.value = false })
 
 const avatarText = computed(() => {
-  const value = userInfo.value?.username?.trim() || userInfo.value?.email?.trim() || 'A'
+  const value = userInfo.value?.nickname?.trim() || userInfo.value?.username?.trim() || userInfo.value?.email?.trim() || 'A'
   return (Array.from(value)[0] || 'A').toUpperCase()
 })
 const showAvatarImage = computed(() => Boolean(userInfo.value?.avatar) && !avatarLoadFailed.value)
@@ -88,7 +88,7 @@ onUnmounted(() => document.removeEventListener('click', closeMenu))
             <span v-else>{{ avatarText }}</span>
           </span>
           <span class="user-copy">
-            <strong>{{ userInfo?.username || '管理员' }}</strong>
+            <strong>{{ userInfo?.nickname || userInfo?.username || '管理员' }}</strong>
             <small>{{ roleLabel }}</small>
           </span>
           <AdminIcon name="ti-chevron-down" />
@@ -96,7 +96,7 @@ onUnmounted(() => document.removeEventListener('click', closeMenu))
 
         <div v-if="menuOpen" class="user-dropdown admin-panel" role="menu">
           <div class="dropdown-profile">
-            <strong>{{ userInfo?.username || '管理员' }}</strong>
+            <strong>{{ userInfo?.nickname || userInfo?.username || '管理员' }}</strong>
             <span>{{ userInfo?.email || roleLabel }}</span>
           </div>
           <router-link to="/admin/profile" role="menuitem" @click="menuOpen = false">

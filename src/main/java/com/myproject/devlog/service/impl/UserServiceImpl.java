@@ -83,6 +83,7 @@ public class UserServiceImpl implements UserService {
 
         User user = new User();
         user.setUsername(username);
+        user.setNickname(username);
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setEmail(email);
         user.setRole(USER);
@@ -129,6 +130,7 @@ public class UserServiceImpl implements UserService {
         if (userMapper.selectById(userId) == null) {
             throw new BusinessException(HttpStatus.NOT_FOUND, "用户不存在");
         }
+        dto.setNickname(dto.getNickname().trim());
         User update = userConverter.fromProfileUpdateDTO(dto);
         update.setId(userId);
         if (userMapper.updateById(update) != 1) {

@@ -13,12 +13,10 @@ export default {
     media: '作品記録', notes: 'ノート',
     home: 'ホーム', archive: 'アーカイブ', about: 'このサイトについて', login: 'ログイン',
     logout: 'ログアウト', admin: '管理画面', profile: 'プロフィール',
-    changePassword: 'パスワード変更', search: '検索', showNavigation: 'ナビゲーションを表示', userMenu: 'ユーザーメニュー',
+    changePassword: 'パスワード変更', search: '検索', userMenu: 'ユーザーメニュー',
     user: 'ユーザー', avatar: 'ユーザーアイコン', noBio: 'プロフィールはまだありません'
   },
   home: {
-    hideInterface: '画面を隠して背景のみ表示',
-    restoreInterface: 'ホーム画面を復元',
     latestArticles: '最新の記事', all: 'すべて', articles: '記事', categories: 'カテゴリー',
     comments: 'コメント', clock: '時計', announcement: 'お知らせ',
     noAnnouncement: 'お知らせはありません', randomArticles: 'おすすめ記事',
@@ -87,6 +85,10 @@ export default {
     registerSuccess: '登録が完了しました。ログインしてください'
   },
   profile: {
+    title: 'アカウント情報', hint: 'ログイン中のアカウントのアイコンとニックネームを変更します',
+    nickname: 'ニックネーム', nicknameRequired: 'ニックネームを入力してください', nicknameTooLong: 'ニックネームは30文字以内で入力してください',
+    username: 'ユーザー名', email: 'メールアドレス', save: '変更を保存',
+    avatarHint: 'ブログの公開プロフィールとは別の画像です。アップロード後に変更を保存してください。',
     loginAvatar: 'ログイン用アイコン', changeAvatar: 'アイコンを変更', avatarUploading: 'アップロード中…',
     avatarTypeInvalid: 'JPG、PNG、WebP のみ使用できます',
     avatarSizeInvalid: '画像サイズは 2MB 以下にしてください',

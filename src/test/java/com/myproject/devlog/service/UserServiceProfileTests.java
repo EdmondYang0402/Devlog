@@ -61,19 +61,19 @@ class UserServiceProfileTests {
         when(userMapper.updateById(any(User.class))).thenReturn(1);
 
         UpdateUserDTO dto = new UpdateUserDTO();
+        dto.setNickname("  当前用户  ");
         dto.setAvatar("https://example.test/avatar.webp");
-        dto.setBio("个人简介");
-        dto.setEmail("current@example.com");
 
         UserInfoVO result = userService.updateProfile(dto);
 
         ArgumentCaptor<User> update = ArgumentCaptor.forClass(User.class);
         verify(userMapper).updateById(update.capture());
         assertEquals(7L, update.getValue().getId());
+        assertEquals("当前用户", update.getValue().getNickname());
         assertEquals(dto.getAvatar(), update.getValue().getAvatar());
-        assertEquals(dto.getBio(), update.getValue().getBio());
-        assertEquals(dto.getEmail(), update.getValue().getEmail());
         assertNull(update.getValue().getUsername());
+        assertNull(update.getValue().getEmail());
+        assertNull(update.getValue().getBio());
         assertNull(update.getValue().getPassword());
         assertNull(update.getValue().getRole());
         assertNull(update.getValue().getStatus());

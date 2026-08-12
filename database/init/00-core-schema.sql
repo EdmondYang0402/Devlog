@@ -3,6 +3,7 @@ SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE TABLE IF NOT EXISTS user (
     id BIGINT NOT NULL AUTO_INCREMENT,
     username VARCHAR(16) NOT NULL,
+    nickname VARCHAR(30) NOT NULL,
     email VARCHAR(254) NOT NULL,
     password VARCHAR(100) NOT NULL,
     avatar VARCHAR(500) DEFAULT NULL,

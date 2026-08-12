@@ -24,9 +24,8 @@ public class UserConverter {
             return null;
         }
         User user = new User();
+        user.setNickname(dto.getNickname());
         user.setAvatar(dto.getAvatar());
-        user.setBio(dto.getBio());
-        user.setEmail(dto.getEmail());
         return user;
     }
 }

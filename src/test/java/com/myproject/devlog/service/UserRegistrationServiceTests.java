@@ -85,6 +85,7 @@ class UserRegistrationServiceTests {
         verify(userMapper).insert(captor.capture());
         User inserted = captor.getValue();
         assertEquals("newUser", inserted.getUsername());
+        assertEquals("newUser", inserted.getNickname());
         assertEquals("new@example.com", inserted.getEmail());
         assertEquals("hashed-password", inserted.getPassword());
     }

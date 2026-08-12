@@ -12,8 +12,8 @@ public interface UserMapper {
     @Select("select * from user where id =#{userid}")
     User selectById(Long userid);
 
-    @Insert("INSERT INTO user (username, email, password, avatar, bio, role, status, create_time, update_time) VALUES " +
-            "(#{username}, #{email}, #{password}, #{avatar}, #{bio}, #{role}, #{status}, NOW(), NOW())")
+    @Insert("INSERT INTO user (username, nickname, email, password, avatar, bio, role, status, create_time, update_time) VALUES " +
+            "(#{username}, #{nickname}, #{email}, #{password}, #{avatar}, #{bio}, #{role}, #{status}, NOW(), NOW())")
     int insert(User user);
 
     @Update({
@@ -21,6 +21,7 @@ public interface UserMapper {
             "UPDATE user",
             "<set>",
             "  <if test='username != null'>username = #{username},</if>",
+            "  <if test='nickname != null'>nickname = #{nickname},</if>",
             "  <if test='email != null'>email = #{email},</if>",
             "  <if test='password != null'>password = #{password},</if>",
             "  <if test='avatar != null'>avatar = #{avatar},</if>",

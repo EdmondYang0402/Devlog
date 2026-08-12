@@ -13,15 +13,10 @@ const { t } = useI18n()
 const menuOpen = ref(false)
 const menuRef = ref(null)
 const avatarLoadFailed = ref(false)
-const isNavVisible = ref(true)
-const ropeHovered = ref(false)
-const navbarHovered = ref(false)
-const languageMenuOpen = ref(false)
 const { token, userInfo, isLoggedIn, clearUser, loadCurrentUser } = useCurrentUser()
-let hideTimer = null
 
 const avatarText = computed(() => {
-  const source = userInfo.value?.username?.trim() || userInfo.value?.email?.trim() || 'U'
+  const source = userInfo.value?.nickname?.trim() || userInfo.value?.username?.trim() || userInfo.value?.email?.trim() || 'U'
   return (Array.from(source)[0] || 'U').toUpperCase()
 })
 const showAvatarImage = computed(() => Boolean(userInfo.value?.avatar) && !avatarLoadFailed.value)
@@ -35,64 +30,6 @@ const toggleMenu = () => { menuOpen.value = !menuOpen.value }
 const handleAvatarError = () => { avatarLoadFailed.value = true }
 const closeMenu = event => {
   if (menuRef.value && !menuRef.value.contains(event.target)) menuOpen.value = false
-}
-
-const supportsHover = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches
-const cancelHide = () => {
-  if (!hideTimer) return
-  clearTimeout(hideTimer)
-  hideTimer = null
-}
-const showNav = () => {
-  cancelHide()
-  isNavVisible.value = true
-}
-const hideNavImmediately = () => {
-  cancelHide()
-  ropeHovered.value = false
-  navbarHovered.value = false
-  isNavVisible.value = false
-  menuOpen.value = false
-}
-const scheduleHide = () => {
-  cancelHide()
-  hideTimer = window.setTimeout(() => {
-    if (!ropeHovered.value && !navbarHovered.value && !languageMenuOpen.value) {
-      isNavVisible.value = false
-      menuOpen.value = false
-    }
-    hideTimer = null
-  }, 200)
-}
-const handleRopeEnter = () => {
-  if (!supportsHover()) return
-  ropeHovered.value = true
-  showNav()
-}
-const handleRopeLeave = () => {
-  ropeHovered.value = false
-  scheduleHide()
-}
-const handleNavbarEnter = () => {
-  navbarHovered.value = true
-  showNav()
-}
-const handleNavbarLeave = () => {
-  navbarHovered.value = false
-  scheduleHide()
-}
-const handleRopePointerDown = event => {
-  if (!supportsHover()) event.preventDefault()
-}
-const handleRopeClick = () => {
-  if (supportsHover()) return
-  if (isNavVisible.value) hideNavImmediately()
-  else showNav()
-}
-const handleLanguageVisibility = visible => {
-  languageMenuOpen.value = visible
-  if (visible) showNav()
-  else scheduleHide()
 }
 
 const logout = async () => {
@@ -119,27 +56,18 @@ onMounted(async () => {
   }
 })
 watch(() => router.currentRoute.value.fullPath, () => {
-  showNav()
   menuOpen.value = false
 })
 onUnmounted(() => {
-  cancelHide()
   document.removeEventListener('click', closeMenu)
 })
 </script>
 
 <template>
-  <header class="nav-layer" :class="{ 'is-visible': isNavVisible }">
+  <header class="nav-layer">
     <nav
       id="front-navigation"
       class="nav"
-      :class="{ 'is-visible': isNavVisible }"
-      :aria-hidden="!isNavVisible"
-      :inert="!isNavVisible"
-      @mouseenter="handleNavbarEnter"
-      @mouseleave="handleNavbarLeave"
-      @focusin="handleNavbarEnter"
-      @focusout="handleNavbarLeave"
     >
       <div class="links">
         <router-link to="/home" active-class="is-active">{{ t('nav.home') }}</router-link>
@@ -150,7 +78,7 @@ onUnmounted(() => {
       </div>
 
       <div class="right">
-        <LanguageSwitcher @visibility-change="handleLanguageVisibility" />
+        <LanguageSwitcher />
         <ThemeToggle />
 
         <button v-if="!isLoggedIn" class="btn-login" @click="router.push('/login')">{{ t('nav.login') }}</button>
@@ -160,7 +88,7 @@ onUnmounted(() => {
             <img
               v-if="showAvatarImage"
               :src="userInfo.avatar"
-              :alt="userInfo.username || t('nav.avatar')"
+              :alt="userInfo.nickname || userInfo.username || t('nav.avatar')"
               class="avatar-image"
               @error="handleAvatarError"
             />
@@ -169,7 +97,7 @@ onUnmounted(() => {
 
           <div v-if="menuOpen" class="dropdown">
             <div class="dropdown-header">
-              <p class="d-name">{{ userInfo.username || t('nav.user') }}</p>
+              <p class="d-name">{{ userInfo.nickname || userInfo.username || t('nav.user') }}</p>
               <p class="d-bio">{{ userInfo.bio || t('nav.noBio') }}</p>
             </div>
 
@@ -191,23 +119,6 @@ onUnmounted(() => {
         </div>
       </div>
     </nav>
-
-    <button
-      class="nav-rope"
-      type="button"
-      :aria-label="t('nav.showNavigation')"
-      aria-controls="front-navigation"
-      :aria-expanded="isNavVisible"
-      @mouseenter="handleRopeEnter"
-      @mouseleave="handleRopeLeave"
-      @focus="showNav"
-      @blur="handleRopeLeave"
-      @pointerdown="handleRopePointerDown"
-      @click="handleRopeClick"
-    >
-      <span class="rope-line" aria-hidden="true"></span>
-      <span class="rope-pendant" aria-hidden="true"></span>
-    </button>
   </header>
 </template>
 
@@ -236,18 +147,8 @@ onUnmounted(() => {
   box-shadow: 0 16px 38px color-mix(in srgb, var(--shadow-color) 44%, transparent);
   -webkit-backdrop-filter: blur(14px) saturate(112%);
   backdrop-filter: blur(14px) saturate(112%);
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(-50%, -135%);
-  visibility: hidden;
-  transition: opacity 260ms ease, transform 260ms ease, visibility 0s linear 260ms;
-}
-.nav.is-visible {
-  opacity: 1;
   pointer-events: auto;
   transform: translate(-50%, 0);
-  visibility: visible;
-  transition-delay: 0s;
 }
 .links { grid-column: 2; align-self: stretch; display: flex; align-items: stretch; gap: clamp(24px, 2.2vw, 34px); }
 .links a {
@@ -328,48 +229,6 @@ onUnmounted(() => {
 .right :deep(.theme-thumb) { left: 4px; top: 4px; width: 26px; height: 26px; }
 .right :deep(.theme-toggle.is-dark .theme-thumb) { transform: translateX(29px); }
 
-.nav-rope {
-  position: fixed;
-  top: 0;
-  left: 50%;
-  z-index: 1;
-  width: 28px;
-  height: 96px;
-  padding: 0;
-  pointer-events: auto;
-  transform: translateX(-50%);
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-.rope-line {
-  position: absolute;
-  top: 0;
-  bottom: 8px;
-  left: 50%;
-  width: 2px;
-  transform: translateX(-50%);
-  background: linear-gradient(180deg, rgba(255,255,255,.12), color-mix(in srgb,var(--purple-300) 66%,transparent));
-  box-shadow: 0 0 8px color-mix(in srgb,var(--purple-300) 18%,transparent);
-}
-.rope-pendant {
-  position: absolute;
-  right: 9px;
-  bottom: 1px;
-  width: 10px;
-  height: 10px;
-  transform: rotate(45deg);
-  border: 1px solid color-mix(in srgb,var(--purple-200) 74%,transparent);
-  border-radius: 2px;
-  background: color-mix(in srgb,var(--bg-card) 52%,transparent);
-  box-shadow: 0 2px 8px color-mix(in srgb,var(--shadow-color) 34%,transparent);
-}
-.nav-rope:focus-visible {
-  outline: 2px solid color-mix(in srgb,var(--purple-300) 70%,transparent);
-  outline-offset: -3px;
-  border-radius: 999px;
-}
-
 @media (max-width: 960px) {
   .nav { grid-template-columns: minmax(0, 1fr) auto; padding-inline: 22px; }
   .links { grid-column: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
@@ -406,7 +265,4 @@ onUnmounted(() => {
   .right :deep(.theme-toggle.is-dark .theme-thumb) { transform: translateX(16px); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .nav { transition-duration: 1ms; }
-}
 </style>

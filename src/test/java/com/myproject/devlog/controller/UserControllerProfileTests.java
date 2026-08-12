@@ -17,11 +17,13 @@ class UserControllerProfileTests {
         UserService userService = mock(UserService.class);
         UserController controller = new UserController(userService);
         UpdateUserDTO request = new UpdateUserDTO();
+        request.setNickname("Current User");
         request.setAvatar("https://example.test/user/avatar/new.webp");
 
         UserInfoVO latest = UserInfoVO.builder()
                 .id(7L)
                 .username("current-user")
+                .nickname(request.getNickname())
                 .avatar(request.getAvatar())
                 .build();
 

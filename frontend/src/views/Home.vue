@@ -1,6 +1,5 @@
 <script setup>
-import { computed, inject, onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { onMounted, ref } from 'vue'
 import { articleListService } from '@/api/article.js'
 import { profileStatisticsService } from '@/api/statistics.js'
 import { siteProfileService } from '@/api/site.js'
@@ -10,21 +9,7 @@ import HomeStatusCard from '@/components/home/HomeStatusCard.vue'
 import HomeQuoteBar from '@/components/home/HomeQuoteBar.vue'
 import HomeArticleCarousel from '@/components/home/HomeArticleCarousel.vue'
 import HomeBottomBar from '@/components/home/HomeBottomBar.vue'
-import CurtainPull from '@/components/home/CurtainPull.vue'
-import NeteaseMusicWidget from '@/components/common/NeteaseMusicWidget.vue'
 import '@/assets/css/home-dashboard.css'
-
-const { t } = useI18n()
-const immersiveMode = inject('homeImmersiveMode', null)
-const backgroundOnly = immersiveMode?.backgroundOnly ?? ref(false)
-const curtainProgress = immersiveMode?.curtainProgress ?? ref(0)
-const curtainDragging = immersiveMode?.curtainDragging ?? ref(false)
-const enterBackgroundOnly = () => immersiveMode?.enter()
-const exitBackgroundOnly = () => immersiveMode?.exit()
-const showForeground = computed(() => !backgroundOnly.value || curtainDragging.value)
-const foregroundStyle = computed(() => ({ '--curtain-progress': curtainProgress.value }))
-const setCurtainProgress = value => immersiveMode?.setCurtainProgress(value)
-const setCurtainDragging = value => immersiveMode?.setCurtainDragging(value)
 
 // 默认值只用于接口失败时保持页面可用，成功响应始终覆盖这些降级内容。
 const siteProfile = ref({
@@ -111,15 +96,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="home-stage" :class="{ 'home-stage--background-only': backgroundOnly }">
-    <section
-      v-if="showForeground"
-      class="home-dashboard home-dashboard--curtain-reactive"
-      :style="foregroundStyle"
-      :aria-label="siteProfile.siteTitle"
-      :aria-hidden="backgroundOnly"
-      :inert="curtainDragging || backgroundOnly"
-    >
+  <main class="home-stage">
+    <section class="home-dashboard" :aria-label="siteProfile.siteTitle">
         <HomeSearchBar />
         <div class="home-top-row">
           <HomeProfileCard :profile="siteProfile" :stats="stats" />
@@ -128,15 +106,6 @@ onMounted(() => {
         <HomeQuoteBar :quote="siteProfile.heroSubtitle" />
         <HomeArticleCarousel :articles="posts" />
         <HomeBottomBar :site-title="siteProfile.siteTitle" :article-count="stats.posts" />
-        <NeteaseMusicWidget />
     </section>
-    <CurtainPull
-      :active="backgroundOnly"
-      :label="backgroundOnly ? t('home.restoreInterface') : t('home.hideInterface')"
-      @activate="enterBackgroundOnly"
-      @deactivate="exitBackgroundOnly"
-      @progress="setCurtainProgress"
-      @dragging-change="setCurtainDragging"
-    />
   </main>
 </template>

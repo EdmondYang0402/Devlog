@@ -25,6 +25,7 @@
 - 数据库任务先检查 `database/` 脚本与 Mapper 中的真实 schema；不发明表名或字段。优先复用模型、批量查询/写入，避免 N+1，多步骤一致性写入使用事务。
 - `Article -> Category`；`Article <-> Tag` 通过 `article_tag`，表示文章实际使用的标签；`Category <-> Tag` 通过 `category_tag`，表示分类与标签的多对多关系。两张关系表不可混用。
 - 手记复用 Article 与固定分类语义；除非用户明确改变长期设计，不新增独立 Note CRUD。Media Review（作品档案）和 Project Showcase 均独立于 Article。
+- 登录账户的 `username` 是不可由个人资料功能修改的登录标识；用户可修改自己的 `nickname` 与 `avatar`，身份必须取自 `UserContext`，且账户头像不得与博客公开资料头像混用。
 - HTTP 状态必须表达真实结果：成功 `200`；输入/业务请求无效 `400`；未认证 `401`；无权限 `403`；资源不存在 `404`；冲突 `409`；意外错误 `500`。不要用 HTTP 200 + `Result.error` 表达失败。
 
 ## Verification and delivery

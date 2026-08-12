@@ -13,12 +13,10 @@ export default {
     media: 'Media Log', notes: 'Notes',
     home: 'Home', archive: 'Archive', about: 'About', login: 'Log in', logout: 'Log out',
     admin: 'Admin', profile: 'Profile', changePassword: 'Change password',
-    search: 'Search', showNavigation: 'Show navigation', userMenu: 'User menu', user: 'User', avatar: 'User avatar',
+    search: 'Search', userMenu: 'User menu', user: 'User', avatar: 'User avatar',
     noBio: 'No profile yet'
   },
   home: {
-    hideInterface: 'Hide the interface and show only the background',
-    restoreInterface: 'Restore the home interface',
     latestArticles: 'Latest articles', all: 'All', articles: 'Articles', categories: 'Categories',
     comments: 'Comments', clock: 'Clock', announcement: 'Announcement',
     noAnnouncement: 'No announcements', randomArticles: 'More articles',
@@ -83,6 +81,10 @@ export default {
     registerSuccess: 'Account created. Please log in'
   },
   profile: {
+    title: 'Account profile', hint: 'Update the avatar and nickname for the signed-in account',
+    nickname: 'Nickname', nicknameRequired: 'Nickname is required', nicknameTooLong: 'Nickname must not exceed 30 characters',
+    username: 'Username', email: 'Email', save: 'Save changes',
+    avatarHint: 'This avatar is separate from the public blog profile. Save your changes after uploading.',
     loginAvatar: 'Login avatar', changeAvatar: 'Change avatar', avatarUploading: 'Uploading…',
     avatarTypeInvalid: 'Only JPG, PNG, and WebP images are supported',
     avatarSizeInvalid: 'The image must not exceed 2 MB',

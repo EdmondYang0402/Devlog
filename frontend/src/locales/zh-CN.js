@@ -13,12 +13,10 @@ export default {
     media: '作品档案', notes: '手记',
     home: '首页', archive: '归档', about: '关于', login: '登录', logout: '退出登录',
     admin: '后台管理', profile: '个人资料', changePassword: '修改密码',
-    search: '搜索', showNavigation: '显示导航', userMenu: '用户菜单', user: '用户', avatar: '用户头像',
+    search: '搜索', userMenu: '用户菜单', user: '用户', avatar: '用户头像',
     noBio: '暂无个人简介'
   },
   home: {
-    hideInterface: '隐藏界面，只显示背景',
-    restoreInterface: '恢复首页界面',
     latestArticles: '最新文章', all: '全部', articles: '文章', categories: '分类',
     comments: '评论', clock: '电子时钟', announcement: '公告',
     noAnnouncement: '暂无公告', randomArticles: '随机文章',
@@ -79,6 +77,10 @@ export default {
     registerFailed: '注册失败，请稍后重试', registerSuccess: '注册成功，请登录'
   },
   profile: {
+    title: '账户资料', hint: '修改当前登录账户的头像和昵称',
+    nickname: '昵称', nicknameRequired: '昵称不能为空', nicknameTooLong: '昵称不能超过30个字符',
+    username: '用户名', email: 'Email', save: '保存修改',
+    avatarHint: '头像与博客公开资料相互独立，上传后需保存修改。',
     loginAvatar: '登录头像', changeAvatar: '更换头像', avatarUploading: '上传中…',
     avatarTypeInvalid: '仅支持 JPG、PNG、WebP', avatarSizeInvalid: '图片大小不能超过 2MB',
     avatarResolutionLow: '图片清晰度较低，建议至少使用 200 × 200 的图片',

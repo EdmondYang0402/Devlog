@@ -101,7 +101,7 @@ const submitResetPwd = async () => {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: #f8f6f3;
+    background: transparent;
 }
 
 .pwd-wrap {

@@ -48,7 +48,7 @@ const navGroups = computed(() => [
 
 const isActive = to => route.path === to || route.path.startsWith(`${to}/`)
 const avatarText = computed(() => {
-  const value = userInfo.value?.username?.trim() || userInfo.value?.email?.trim() || 'A'
+  const value = userInfo.value?.nickname?.trim() || userInfo.value?.username?.trim() || userInfo.value?.email?.trim() || 'A'
   return (Array.from(value)[0] || 'A').toUpperCase()
 })
 const showAvatarImage = computed(() => Boolean(userInfo.value?.avatar) && !avatarLoadFailed.value)
@@ -101,7 +101,7 @@ const showAvatarImage = computed(() => Boolean(userInfo.value?.avatar) && !avata
             <span v-else>{{ avatarText }}</span>
           </div>
           <div class="identity-copy">
-            <strong>{{ userInfo?.username || '管理员' }}</strong>
+            <strong>{{ userInfo?.nickname || userInfo?.username || '管理员' }}</strong>
             <span>Hathaway’s Blog</span>
           </div>
         </div>
