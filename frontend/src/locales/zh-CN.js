@@ -5,9 +5,16 @@ export default {
     search: '搜索', refresh: '刷新', delete: '删除'
   },
   music: {
-    label: '音乐', title: 'DevLog BGM', platform: '网易云音乐',
+    label: '音乐', title: 'DevLog BGM',
     expand: '展开播放器', collapse: '收起播放器',
-    playerLabel: 'DevLog 网易云歌单播放器', unavailable: '播放器暂时不可用'
+    playerLabel: 'DevLog 全局音乐播放器', emptyPlaylist: '歌单暂未配置', unknownArtist: '未知歌手',
+    noLyrics: '暂无歌词', loadFailed: '歌曲加载失败', coverAlt: '{title} 的封面',
+    seek: '播放进度', previous: '上一首', play: '播放', pause: '暂停', next: '下一首'
+  },
+  seasonEffect: {
+    label: '季节特效', shortLabel: '季节', none: '无特效',
+    sakura: '春·樱花', rain: '夏·雨滴', leaf: '秋·落叶', snow: '冬·雪花',
+    reducedMotion: '系统已启用减少动态效果，季节动画暂时关闭'
   },
   nav: {
     media: '作品档案', notes: '手记',

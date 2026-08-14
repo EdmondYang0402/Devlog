@@ -5,9 +5,16 @@ export default {
     search: 'Search', refresh: 'Refresh', delete: 'Delete'
   },
   music: {
-    label: 'Music', title: 'DevLog BGM', platform: 'NetEase Cloud Music',
+    label: 'Music', title: 'DevLog BGM',
     expand: 'Expand player', collapse: 'Collapse player',
-    playerLabel: 'DevLog NetEase playlist player', unavailable: 'The player is temporarily unavailable'
+    playerLabel: 'DevLog global music player', emptyPlaylist: 'Playlist not configured', unknownArtist: 'Unknown artist',
+    noLyrics: 'No lyrics available', loadFailed: 'Unable to load this track', coverAlt: 'Cover for {title}',
+    seek: 'Playback position', previous: 'Previous track', play: 'Play', pause: 'Pause', next: 'Next track'
+  },
+  seasonEffect: {
+    label: 'Season effect', shortLabel: 'Season', none: 'No effect',
+    sakura: 'Spring · Sakura', rain: 'Summer · Rain', leaf: 'Autumn · Leaves', snow: 'Winter · Snow',
+    reducedMotion: 'Season animation is paused by your reduced-motion preference'
   },
   nav: {
     media: 'Media Log', notes: 'Notes',

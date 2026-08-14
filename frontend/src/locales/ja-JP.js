@@ -5,9 +5,16 @@ export default {
     search: '検索', refresh: '更新', delete: '削除'
   },
   music: {
-    label: '音楽', title: 'DevLog BGM', platform: 'NetEase Cloud Music',
+    label: '音楽', title: 'DevLog BGM',
     expand: 'プレーヤーを開く', collapse: 'プレーヤーを閉じる',
-    playerLabel: 'DevLog NetEase プレイリストプレーヤー', unavailable: 'プレーヤーは一時的に利用できません'
+    playerLabel: 'DevLog グローバル音楽プレーヤー', emptyPlaylist: 'プレイリストが未設定です', unknownArtist: '不明なアーティスト',
+    noLyrics: '歌詞はありません', loadFailed: '曲を読み込めませんでした', coverAlt: '{title} のカバー',
+    seek: '再生位置', previous: '前の曲', play: '再生', pause: '一時停止', next: '次の曲'
+  },
+  seasonEffect: {
+    label: '季節エフェクト', shortLabel: '季節', none: 'エフェクトなし',
+    sakura: '春・桜', rain: '夏・雨', leaf: '秋・落葉', snow: '冬・雪',
+    reducedMotion: '端末の「視差効果を減らす」設定により季節アニメーションを停止しています'
   },
   nav: {
     media: '作品記録', notes: 'ノート',

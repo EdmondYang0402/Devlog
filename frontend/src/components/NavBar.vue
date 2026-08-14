@@ -7,6 +7,7 @@ import { userLogoutService } from '@/api/user.js'
 import { useCurrentUser } from '@/composables/useCurrentUser.js'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher.vue'
+import SeasonEffectSelector from '@/components/effects/SeasonEffectSelector.vue'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -78,6 +79,7 @@ onUnmounted(() => {
       </div>
 
       <div class="right">
+        <SeasonEffectSelector />
         <LanguageSwitcher />
         <ThemeToggle />
 

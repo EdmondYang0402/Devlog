@@ -2,22 +2,22 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import NavBar from '@/components/NavBar.vue'
-import SakuraPetalLayer from '@/components/SakuraPetalLayer.vue'
+import SeasonEffectLayer from '@/components/effects/SeasonEffectLayer.vue'
 import BackToTop from '@/components/common/BackToTop.vue'
-import NeteaseMusicWidget from '@/components/common/NeteaseMusicWidget.vue'
+import FloatingMusicPlayer from '@/components/music/FloatingMusicPlayer.vue'
+import GlobalAudio from '@/components/music/GlobalAudio.vue'
 import BackgroundCarousel from '@/components/background/BackgroundCarousel.vue'
 import BackgroundOverlay from '@/components/background/BackgroundOverlay.vue'
 
 const route = useRoute()
 const readingMode = computed(() => route.name === 'PostDetail' || route.name === 'MediaDetail')
-const showPetals = computed(() => route.name !== 'Home' && !readingMode.value)
 </script>
 
 <template>
   <div class="front-layout" :class="{ 'front-layout--reading': readingMode }">
     <BackgroundCarousel />
     <BackgroundOverlay :reading="readingMode" />
-    <SakuraPetalLayer v-if="showPetals" />
+    <SeasonEffectLayer />
     <NavBar />
     <div class="front-layout__content">
       <router-view v-slot="{ Component, route: currentRoute }">
@@ -26,7 +26,8 @@ const showPetals = computed(() => route.name !== 'Home' && !readingMode.value)
         </Transition>
       </router-view>
     </div>
-    <NeteaseMusicWidget />
+    <FloatingMusicPlayer />
+    <GlobalAudio />
     <BackToTop />
   </div>
 </template>

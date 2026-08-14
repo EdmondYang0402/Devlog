@@ -56,7 +56,7 @@ function spawnBurst(x, y) {
   setTimeout(() => w.remove(), 700)
 }
 
-// 首页已经由全屏背景和 Bento 网格建立视觉重点，不再叠加花瓣与点击粒子。
+// 首页由全屏背景和 Bento 网格建立视觉重点，不再叠加点击粒子。
 const onClick = e => {
   if (!isAdminRoute.value && route.name !== 'Home') spawnBurst(e.clientX, e.clientY)
 }
